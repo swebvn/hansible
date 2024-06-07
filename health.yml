@@ -1,0 +1,22 @@
+# code: language=ansible
+
+- name: Health check connection
+  hosts: all
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+
+  tasks:
+    - name: Check if the server is responding
+      shell : whoami
+      register: result
+
+    - name: Success
+      debug:
+        msg: "The server is responding"
+      when: result.stdout == "root"
+
+    - name: Fail
+      fail:
+        msg: "Can not use root user"
+      when: result.stdout != "root"

@@ -13,7 +13,7 @@ if [[ -d "$CONFIG_DIR" ]]; then
         if [[ -f "$config_file" ]]; then
             echo "Processing config file: $config_file"
             # Add your processing logic here
-	# Update pm.max_children and pm.max_requests values
+	        # Update pm.max_children and pm.max_requests values
             sed -i.bak -E "s/^(pm\.max_children\s*=\s*).*/\1$NEW_MAX_CHILDREN/" "$config_file"
             sed -i.bak -E "s/^(pm\.max_requests\s*=\s*).*/\1$NEW_MAX_REQUESTS/" "$config_file"
 
