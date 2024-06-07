@@ -6,9 +6,15 @@
   become_method: sudo
 
   tasks:
-    - name: Backup current php-fpm.d
-      command:
-        chdir: /opt/php-7.2.18/etc
-        cmd: cp -R php-fpm.d php-fpm.d-backup-{{ ansible_date_time.date }}-{{ ansible_date_time.time }}
-    - name: Tune the php-fpm
-      command:
+    - name: Upload the tune-fpm.sh script
+      copy:
+        src: "../scripts/tune-fpm.sh"
+        dest: /tmp/tune-fpm.sh
+        mode: +x
+
+    - name: Run the tune-fpm.sh script
+      chdir: /tmp
+      shell: chmod +x tune-fpm.sh && ./tune-fpm.sh
+      register: result
+
+
