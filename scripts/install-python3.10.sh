@@ -12,6 +12,8 @@ cd Python-3.10.0
 sudo ./configure --enable-optimizations
 sudo make altinstall
 
+source ~/.bashrc
+
 # Verify the installation
 python3.10 --version
 
