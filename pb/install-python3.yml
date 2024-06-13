@@ -14,7 +14,7 @@
 
     - name: Upload the python3.10 installation script
       ansible.builtin.copy:
-        src: "../scripts/install-python3.sh"
+        src: "{{ playbook_dir }}/../scripts/install-python3.sh"
         dest: /tmp/install-python3.sh
         mode: 0755
       when: python3_check.stat.exists == False
