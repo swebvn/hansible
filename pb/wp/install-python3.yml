@@ -25,4 +25,8 @@
         cmd: chmod +x install-python3.sh && ./install-python3.sh
       when: python3_check.stat.exists == False
 
+    - name: Remove the python3.10 installation script
+      shell: rm -f /tmp/install-python3.sh
+      when: python3_check.stat.exists == False
+
 
