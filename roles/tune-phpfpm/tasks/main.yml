@@ -1,0 +1,10 @@
+- name: Upload the tune-fpm.sh script
+  copy:
+    src: files/tune-fpm.sh
+    dest: /tmp/tune-fpm.sh
+    mode: +x
+
+- name: Run the tune-fpm.sh script
+  chdir: /tmp
+  shell: chmod +x tune-fpm.sh && ./tune-fpm.sh
+  register: result
