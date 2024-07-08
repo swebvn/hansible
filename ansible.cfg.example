@@ -1,0 +1,4 @@
+[defaults]
+roles_path=/Users/daudau/Code/swebvn/hansible/roles
+private_key_file=/Users/daudau/.ssh/deploy_rsa.pem
+host_key_checking=False
