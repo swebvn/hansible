@@ -1,0 +1,16 @@
+---
+- name: Upload the update-wc-key-read-write script
+  copy:
+    src: files/read-write-wc.sh
+    dest: /tmp/read-write-wc.sh
+    mode: +x
+
+- name: Run the update-wc-key-read-write script
+  args:
+    chdir: /tmp
+  shell: chmod +x read-write-wc.sh && ./read-write-wc.sh
+  register: result
+
+- name: Display results
+  debug:
+    var: result

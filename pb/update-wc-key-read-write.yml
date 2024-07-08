@@ -1,0 +1,8 @@
+- name: Set read/write for Woocommerc api keys
+  hosts: all
+  strategy: free
+  become: yes
+  become_method: sudo
+
+  roles:
+    - update-wc-key-read-write
