@@ -11,7 +11,7 @@ for d in /home/*/domains/*/public_html; do
 
 
     # update permissions = read_write
-    mysql -u root -e "UPDATE `$dbname.wp_woocommerce_api_keys` SET permissions = 'read_write';"
+    mysql -u root -e "UPDATE $dbname.wp_woocommerce_api_keys SET permissions = 'read_write';"
 
     # if the query above error, echo error
     if [ $? -ne 0 ]; then
