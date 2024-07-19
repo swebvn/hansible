@@ -4,4 +4,4 @@
   become_method: sudo
 
   roles:
-    - provision-offshore
+    - offshore-provision

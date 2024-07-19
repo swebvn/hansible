@@ -1,0 +1,40 @@
+---
+# tasks file for roles/provision-offshore
+- name: Provision Offshore Ubuntu server
+  hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Update all packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+        cache_valid_time: 3600
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy nginx.conf file
+      template:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+
+    - name: Install zabix agent
+      apt:
+        name: zabbix-agent
+        state: present
+
+    - name: Copy zabbix_agentd.conf file
+      template:
+        src: zabbix_agentd.conf
+        dest: /etc/zabbix/zabbix_agentd.conf
+
+    - name: Restart zabbix-agent
+      service:
+        name: zabbix-agent
+        state: restarted
+
+    - name: Setup zabix server
