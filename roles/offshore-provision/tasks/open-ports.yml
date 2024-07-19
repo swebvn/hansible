@@ -1,0 +1,19 @@
+- name: Allow SSH (port 22) through UFW
+  ufw:
+    rule: allow
+    port: 22
+
+- name: Allow HTTP (port 80) through UFW
+  ufw:
+    rule: allow
+    port: 80
+
+- name: Allow HTTPS (port 443) through UFW
+  ufw:
+    rule: allow
+    port: 443
+
+- name: Allow Zabbix-agent (port 10050) through UFW
+  ufw:
+    rule: allow
+    port: 10050

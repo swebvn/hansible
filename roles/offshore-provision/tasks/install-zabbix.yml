@@ -1,0 +1,109 @@
+---
+- name: Install zabbix-agent
+  apt:
+    name: zabbix-agent
+    state: present
+
+- name: start and enable zabbix agent
+  systemd:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+
+- name: create folder zabbix agent
+  file:
+    path: /etc/zabbix/zabbix_agentd.d/
+    state: directory
+    owner: zabbix
+    group: zabbix
+    mode: '0755'
+  tags:
+    - zabbix
+
+- name: copy lld-disks.py
+  copy:
+    src: templates/lld-disks.py
+    dest: /usr/local/bin/lld-disks.py
+    owner: zabbix
+    group: zabbix
+  tags:
+    - zabbix
+
+- name: copy zabbix-agent config
+  copy:
+    src: templates/zabbix_agentd.conf
+    dest: /etc/zabbix/zabbix_agentd.conf
+    owner: zabbix
+    group: zabbix
+    mode: '0644'
+    backup: yes
+  tags:
+    - zabbix
+
+- name: copy userparameter_diskstats.conf
+  template:
+    src: userparameter_diskstats.conf
+    dest: /etc/zabbix/zabbix_agentd.d/userparameter_diskstats.conf
+  tags:
+    - zabbix
+
+- name: copy userparameter_sockstat.conf
+  template:
+    src: userparameter_sockstat.conf
+    dest: /etc/zabbix/zabbix_agentd.d/userparameter_sockstat.conf
+  tags:
+    - zabbix
+
+- name: get hostname to config zabbix agentd
+  shell: hostname
+  register: hst
+  tags:
+    - zabbix
+
+- name: config hostname zabbix agentd
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^Hostname='
+    line: Hostname={{ hst.stdout }}
+  tags:
+    - zabbix
+
+- name: config IP server zabbix agentd
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^Server='
+    line: Server=103.97.124.136
+  tags:
+    - zabbix
+
+- name: config IP ServerActive zabbix agentd
+  lineinfile:
+    path: /etc/zabbix/zabbix_agentd.conf
+    regexp: '^ServerActive='
+    line: ServerActive=103.97.124.136
+  tags:
+    - zabbix
+
+- name: make sure folder zabbix owner by zabbix user
+  shell: "chown zabbix: -R /etc/zabbix"
+  tags:
+    - zabbix
+
+- name: start zabbix agent service
+  systemd:
+    state: started
+    name: zabbix-agent
+    enabled: yes
+  tags:
+    - zabbix
+
+- name: check zabbix-agent is running
+  shell: netstat -nltp | grep -v grep | grep zabbix
+  register: zabbixagent
+  tags:
+    - zabbix
+
+- debug:
+    msg: "{{ zabbixagent.stdout_lines|list }}"
+  tags:
+    - zabbix

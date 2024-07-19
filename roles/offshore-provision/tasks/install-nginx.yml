@@ -1,0 +1,22 @@
+- name: Install Nginx
+  apt:
+    name: nginx
+    state: latest
+
+- name: Copy config nginx
+  template:
+    src: nginx.conf
+    dest: /etc/nginx/nginx.conf
+    backup: yes
+
+- name: Start and enable nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Create folder contains log nginx
+  file:
+    path: /var/log/nginx/domains
+    state: directory
+    mode: '0755'
