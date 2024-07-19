@@ -5,3 +5,5 @@ health:
 python3:
 	ansible-playbook pb/install-python3.yml -i $(ip)
 
+role:
+	ansible-galaxy init roles/$(role)
