@@ -50,8 +50,8 @@
   with_items: "{{ plugin_dirs }}"
 
 - name: Activate the plugin for each site
-  command: wp-cli plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
+  shell: php -d memory_limit=512M "$(which wp-cli)" plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
   with_items: "{{ plugin_dirs }}"
   register: plugin_activation
-  failed_when: "'Plugin '{{ plugin_name }}' activated' not in plugin_activation.stdout"
-  changed_when: "'Plugin '{{ plugin_name }}' activated' in plugin_activation.stdout"
+  failed_when: "'Success' not in plugin_activation.stdout"
+  changed_when: "'Success' in plugin_activation.stdout"
