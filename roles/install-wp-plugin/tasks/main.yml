@@ -41,12 +41,6 @@
   with_items: "{{ plugin_dirs }}"
   tags: copy
 
-- name: Remove the plugin zip file after unzipping
-  file:
-    path: "{{ item }}/{{ plugin_zip }}"
-    state: absent
-  with_items: "{{ plugin_dirs }}"
-
 - name: Change ownership of the plugin directory
   file:
     path: "{{ item }}/{{ plugin_name }}"
