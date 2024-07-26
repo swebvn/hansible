@@ -1,0 +1,10 @@
+---
+
+- name: Install WP-CLI
+  hosts: all
+  strategy: free
+  become: yes
+  become_method: sudo
+
+  roles:
+    - install-wp-cli

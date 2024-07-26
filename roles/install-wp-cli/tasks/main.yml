@@ -1,0 +1,19 @@
+---
+# tasks file for roles/install-wp-cli
+- name: Check if WP-CLI is installed
+  stat:
+    path: /usr/bin/wp-cli
+  register: wp_cli_check
+
+- name: Upload install script
+  when: wp_cli_check.stat.exists == False
+  copy:
+    src: files/install-wp-cli.sh
+    dest: /tmp/install-wp-cli.sh
+    mode: 0755
+
+- name: Run the install script
+  when: wp_cli_check.stat.exists == False
+  shell:
+    chdir: /tmp
+    cmd: chmod +x install-wp-cli.sh && ./install-wp-cli.sh
