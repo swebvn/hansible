@@ -19,12 +19,19 @@
 # - name: End here
 #   meta: end_play
 
+- name: Copy plugin zip file to /tmp folder
+  copy:
+    src: "files/{{ plugin_zip }}"
+    dest: "/tmp/{{ plugin_zip }}"
+  tags: upload
+
 - name: Copy plugin zip file to each site
   copy:
-    src: "{{ plugin_zip }}"
-    dest: "{{ item }}/{{ plugin_zip }}"
+    src: "/tmp/{{ plugin_zip }}"
+    dest: "{{ item }}"
+    remote_src: yes
   with_items: "{{ plugin_dirs }}"
-  tags: unzip
+  tags: copy
 
 - name: Unzip the plugin file for each site
   unarchive:
@@ -33,6 +40,12 @@
     remote_src: yes
   with_items: "{{ plugin_dirs }}"
   tags: unzip
+
+- name: Remove the plugin zip file after unzipping
+  file:
+    path: "{{ item }}/{{ plugin_zip }}"
+    state: absent
+  with_items: "{{ plugin_dirs }}"
 
 - name: Change ownership of the plugin directory
   file:
@@ -49,9 +62,3 @@
   register: plugin_activation
   failed_when: "'Success' not in plugin_activation.stdout"
   changed_when: "'Success' in plugin_activation.stdout"
-
-- name: Remove the plugin zip file after unzipping
-  file:
-    path: "{{ item }}/{{ plugin_zip }}"
-    state: absent
-  with_items: "{{ plugin_dirs }}"
