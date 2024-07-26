@@ -34,12 +34,6 @@
   with_items: "{{ plugin_dirs }}"
   tags: unzip
 
-- name: Remove the plugin zip file after unzipping
-  file:
-    path: "{{ item }}/{{ plugin_zip }}"
-    state: absent
-  with_items: "{{ plugin_dirs }}"
-
 - name: Change ownership of the plugin directory
   file:
     path: "{{ item }}/{{ plugin_name }}"
@@ -50,8 +44,14 @@
   with_items: "{{ plugin_dirs }}"
 
 - name: Activate the plugin for each site
-  shell: php -d memory_limit=512M "$(which wp-cli)" plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
+  shell: php -d memory_limit=512M /usr/bin/wp-cli plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
   with_items: "{{ plugin_dirs }}"
   register: plugin_activation
   failed_when: "'Success' not in plugin_activation.stdout"
   changed_when: "'Success' in plugin_activation.stdout"
+
+- name: Remove the plugin zip file after unzipping
+  file:
+    path: "{{ item }}/{{ plugin_zip }}"
+    state: absent
+  with_items: "{{ plugin_dirs }}"
