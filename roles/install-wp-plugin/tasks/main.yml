@@ -1,6 +1,6 @@
 # tasks/main.yml
 - name: Find all WordPress plugin directories
-  shell: "find /home -type d -path '*/public_html/wp-content/plugins'"
+  shell: "find /home -maxdepth 6 -type d -path '*/public_html/wp-content/plugins'"
   register: wp_plugin_dirs
   changed_when: false
 
@@ -10,20 +10,30 @@
 
 - name: Extract user home directories
   set_fact:
-    plugin_users: "{{ plugin_dirs | map('regex_replace', '/home/(.*)/domains/(.*)/public_html/wp-content/plugins', '\\1') | map('basename') | list }}"
+    plugin_users: "{{ plugin_dirs | map('regex_replace', '^/home/([^/]+)/.*$', '\\1') | unique | list }}"
+
+- name: Debug the plugin directories
+  debug:
+    var: plugin_dirs
 
 - name: Debug the plugin directories
   debug:
     var: plugin_users
 
-# - name: End here
-#   meta: end_play
+- name: End here
+  meta: end_play
 
 - name: Copy plugin zip file to /tmp folder
   copy:
     src: "files/{{ plugin_zip }}"
     dest: "/tmp/{{ plugin_zip }}"
   tags: upload
+
+- name: Ensure the plugin extraction directory exists
+  file:
+    path: "/tmp/{{ plugin_name }}"
+    state: directory
+  tags: prepare
 
 - name: Unzip the plugin file in /tmp
   unarchive:
