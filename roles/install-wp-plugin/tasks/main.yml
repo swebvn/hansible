@@ -1,36 +1,57 @@
 # tasks/main.yml
 - name: Find all WordPress plugin directories
-  find:
-    paths: "/home"
-    patterns: "public_html/wp-content/plugins"
-    recurse: yes
-    file_type: directory
+  shell: "find /home -type d -path '*/public_html/wp-content/plugins'"
   register: wp_plugin_dirs
+  changed_when: false
+
+- name: Set fact for plugins directories
+  set_fact:
+    plugin_dirs: "{{ wp_plugin_dirs.stdout_lines }}"
+
+- name: Extract user home directories
+  set_fact:
+    plugin_users: "{{ plugin_dirs | map('regex_replace', '/home/(.*)/domains/(.*)/public_html/wp-content/plugins', '\\1') | map('basename') | list }}"
+
+- name: Debug the plugin directories
+  debug:
+    var: plugin_users
+
+# - name: End here
+#   meta: end_play
 
 - name: Copy plugin zip file to each site
   copy:
-    src: "files/{{ plugin_zip }}"
-    dest: "{{ item.path }}/{{ plugin_zip }}"
-  with_items: "{{ wp_plugin_dirs.files }}"
+    src: "{{ plugin_zip }}"
+    dest: "{{ item }}/{{ plugin_zip }}"
+  with_items: "{{ plugin_dirs }}"
   tags: unzip
 
 - name: Unzip the plugin file for each site
   unarchive:
-    src: "{{ item.path }}/{{ plugin_zip }}"
-    dest: "{{ item.path }}"
+    src: "{{ item }}/{{ plugin_zip }}"
+    dest: "{{ item }}"
     remote_src: yes
-  with_items: "{{ wp_plugin_dirs.files }}"
+  with_items: "{{ plugin_dirs }}"
   tags: unzip
 
 - name: Remove the plugin zip file after unzipping
   file:
-    path: "{{ item.path }}/{{ plugin_zip }}"
+    path: "{{ item }}/{{ plugin_zip }}"
     state: absent
-  with_items: "{{ wp_plugin_dirs.files }}"
+  with_items: "{{ plugin_dirs }}"
+
+- name: Change ownership of the plugin directory
+  file:
+    path: "{{ item }}/{{ plugin_name }}"
+    state: directory
+    owner: "{{ plugin_users[plugin_dirs.index(item)] }}"
+    group: "{{ plugin_users[plugin_dirs.index(item)] }}"
+    recurse: yes
+  with_items: "{{ plugin_dirs }}"
 
 - name: Activate the plugin for each site
-  command: wp-cli plugin activate {{ plugin_name }} --path={{ item.path | regex_replace('/wp-content/plugins', '') }}
-  with_items: "{{ wp_plugin_dirs.files }}"
+  command: wp-cli plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
+  with_items: "{{ plugin_dirs }}"
   register: plugin_activation
   failed_when: "'Plugin '{{ plugin_name }}' activated' not in plugin_activation.stdout"
   changed_when: "'Plugin '{{ plugin_name }}' activated' in plugin_activation.stdout"
