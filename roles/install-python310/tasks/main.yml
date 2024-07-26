@@ -5,12 +5,11 @@
 
 - name: Check python3 symlinked yet
   ansible.builtin.stat:
-    path: /usr/local/bin/python3
+    path: /usr/bin/python3
   register: python3_symlink_check
 
 - name: Create symlink for python3
-  ansible.builtin.shell:
-    cmd: ln -s /usr/local/bin/python3.10 /usr/local/bin/python3
+  shell: ln -s /usr/local/bin/python3.10 /usr/bin/python3
   when: python3_symlink_check.stat.exists == False and python3_check.stat.exists == True
 
 - name: Upload the python3.10 installation script
