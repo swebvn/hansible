@@ -1,22 +1,21 @@
 ---
 - name: Health check
   hosts: all
+  strategy: free
   become: yes
   become_method: sudo
 
   tasks:
-    # run command whoami
-    - name: Run whoami command
-      command: whoami
-      register: whoami_output
+    - name: Check if the server is responding
+      shell : whoami
+      register: result
 
-    - debug:
-        var: whoami_output.stdout
+    - name: Success
+      debug:
+        msg: "The server is responding"
+      when: result.stdout == "root"
 
-    # ensure output of whoami command is root
-    - name: Ensure whoami command output is root
-      assert:
-        that:
-          - whoami_output.stdout == "root"
-        fail_msg: "The user is not root"
-        success_msg: "The user is root"
+    - name: Fail
+      fail:
+        msg: "Can not use root user"
+      when: result.stdout != "root"
