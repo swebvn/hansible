@@ -1,0 +1,22 @@
+---
+- name: Health check
+  hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+    # run command whoami
+    - name: Run whoami command
+      command: whoami
+      register: whoami_output
+
+    - debug:
+        var: whoami_output.stdout
+
+    # ensure output of whoami command is root
+    - name: Ensure whoami command output is root
+      assert:
+        that:
+          - whoami_output.stdout == "root"
+        fail_msg: "The user is not root"
+        success_msg: "The user is root"
