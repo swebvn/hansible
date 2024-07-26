@@ -20,8 +20,8 @@
   debug:
     var: plugin_users
 
-- name: End here
-  meta: end_play
+# - name: End here
+  # meta: end_play
 
 - name: Copy plugin zip file to /tmp folder
   copy:
@@ -29,16 +29,10 @@
     dest: "/tmp/{{ plugin_zip }}"
   tags: upload
 
-- name: Ensure the plugin extraction directory exists
-  file:
-    path: "/tmp/{{ plugin_name }}"
-    state: directory
-  tags: prepare
-
 - name: Unzip the plugin file in /tmp
   unarchive:
     src: "/tmp/{{ plugin_zip }}"
-    dest: "/tmp/{{ plugin_name }}"
+    dest: "/tmp"
     remote_src: yes
   tags: unzip
 
