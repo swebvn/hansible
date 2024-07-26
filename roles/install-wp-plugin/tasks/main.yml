@@ -25,21 +25,21 @@
     dest: "/tmp/{{ plugin_zip }}"
   tags: upload
 
-- name: Copy plugin zip file to each site
-  copy:
+- name: Unzip the plugin file in /tmp
+  unarchive:
     src: "/tmp/{{ plugin_zip }}"
-    dest: "{{ item }}"
+    dest: "/tmp/{{ plugin_name }}"
     remote_src: yes
+  tags: unzip
+
+- name: Copy plugin files from /tmp to each site
+  copy:
+    src: "/tmp/{{ plugin_name }}/"
+    dest: "{{ item }}/{{ plugin_name }}/"
+    remote_src: yes
+    mode: 'u+rX'
   with_items: "{{ plugin_dirs }}"
   tags: copy
-
-- name: Unzip the plugin file for each site
-  unarchive:
-    src: "{{ item }}/{{ plugin_zip }}"
-    dest: "{{ item }}"
-    remote_src: yes
-  with_items: "{{ plugin_dirs }}"
-  tags: unzip
 
 - name: Remove the plugin zip file after unzipping
   file:
