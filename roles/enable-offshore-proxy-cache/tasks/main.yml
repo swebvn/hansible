@@ -1,0 +1,13 @@
+- name: Ensure `nginx.conf` has proxy_cache_path directive
+  ansible.builtin.blockinfile:
+    path: /etc/nginx/nginx.conf.test
+    marker: "# {mark} ANSIBLE HTTP CACHE"
+    insertafter: "http {"
+    block: |
+      proxy_cache_path /tmp/cache keys_zone=my_cache:60m loader_threshold=300 loader_files=100;
+    state: present
+    backup: yes
+
+    # if file changed, reload nginx
+  notify: Reload nginx
+

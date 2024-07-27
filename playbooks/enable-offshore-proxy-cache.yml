@@ -1,0 +1,9 @@
+---
+- name: Enable offshore nginx proxy cache
+  hosts: all
+  become: yes
+  become_method: sudo
+  strategy: free
+
+  roles:
+    - role: enable-offshore-proxy-cache
