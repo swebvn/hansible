@@ -6,7 +6,7 @@
     block: |
       proxy_cache_path /tmp/cache keys_zone=my_cache:60m loader_threshold=300 loader_files=100;
     state: present
-    backup: yes
+    backup: true
   notify: Reload nginx
 
 - name: Loop over all .conf file in /etc/nginx/conf.d/*.conf
@@ -15,6 +15,6 @@
     patterns: "*.conf"
   register: nginx_conf_files
 
-- name: debug nginx_conf_files
+- name: Debug nginx_conf_files
   ansible.builtin.debug:
     var: nginx_conf_files
