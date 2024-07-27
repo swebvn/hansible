@@ -18,3 +18,4 @@
 - name: Debug nginx_conf_files
   ansible.builtin.debug:
     var: nginx_conf_files
+
