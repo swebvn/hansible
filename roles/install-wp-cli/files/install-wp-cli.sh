@@ -14,7 +14,10 @@ php_path=$(which php)
 if [ -z "$php_path" ]; then
     echo "PHP is not installed"
 
-    if [ -f /opt/php-7.2.18/bin/php ]; then
+    if [ -f /opt/php-7.4.30/bin/php ]; then
+        echo "Symlink PHP"
+        ln -s /opt/php-7.4.30/bin/php /usr/bin/php
+    elif [ -f /opt/php-7.2.18/bin/php ]; then
         echo "Symlink PHP"
         ln -s /opt/php-7.2.18/bin/php /usr/bin/php
     fi
