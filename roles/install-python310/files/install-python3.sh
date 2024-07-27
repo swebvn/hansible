@@ -1,5 +1,4 @@
 # Install Development Tools and Libraries
-sudo yum update -y
 sudo yum groupinstall -y "Development Tools"
 sudo yum install -y openssl-devel bzip2-devel libffi-devel zlib-devel gcc
 
