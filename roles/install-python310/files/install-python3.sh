@@ -9,6 +9,12 @@ sudo wget https://www.python.org/ftp/python/3.10.0/Python-3.10.0.tgz
 sudo tar xzf Python-3.10.0.tgz
 cd Python-3.10.0
 
+# check if gcc installed, if not install it
+gcc --version
+if [ $? -ne 0 ]; then
+  sudo yum install -y gcc
+fi
+
 # Build and install Python 3.10
 sudo ./configure --enable-optimizations
 sudo make altinstall
