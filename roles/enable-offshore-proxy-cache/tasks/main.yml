@@ -1,21 +1,48 @@
 - name: Ensure proxy_cache_path directive is present in nginx.conf
   ansible.builtin.blockinfile:
-    path: /etc/nginx/nginx.conf.test
+    path: /etc/nginx/nginx.conf
     marker: "# {mark} ANSIBLE HTTP CACHE"
     insertafter: "http {"
     block: |
       proxy_cache_path /tmp/cache keys_zone=my_cache:60m loader_threshold=300 loader_files=100;
     state: present
     backup: true
-  notify: Reload nginx
 
 - name: Loop over all .conf file in /etc/nginx/conf.d/*.conf
   ansible.builtin.find:
-    paths: /etc/nginx/conf.d/
+    path: /etc/nginx/conf.d/
     patterns: "*.conf"
   register: nginx_conf_files
 
-- name: Debug nginx_conf_files
-  ansible.builtin.debug:
-    var: nginx_conf_files
+- name: Up date server block
+  with_items: "{{ nginx_conf_files.files }}"
+  blockinfile:
+    path: "{{ item.path }}"
+    marker: "# {mark} ANSIBLE SERVER CACHE" # never change this line
+    insertafter: "server {"
+    block: |
+      proxy_cache my_cache;
+      proxy_cache_valid 200 301 302 160h;
+      proxy_ignore_headers Cache-Control Expires;
+      add_header X-Proxy-Cache $upstream_cache_status;
+      set $skip_cache 0;
+      if ($request_uri ~* ^(/lunar|/cart|/checkout|.*\.php)$) {
+          set $kip_cache 1;
+      }
+
+- name: Up date location block
+  with_items: "{{ nginx_conf_files.files }}"
+  blockinfile:
+    path: "{{ item.path }}"
+    marker: "# {mark} ANSIBLE LOCATION CACHE" # never change this line
+    insertafter: "location / {"
+    block: |
+      proxy_cache_bypass $skip_cache;
+      proxy_no_cache $skip_cache;
+
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+
 
