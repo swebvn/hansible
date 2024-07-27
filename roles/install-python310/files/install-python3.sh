@@ -1,6 +1,13 @@
 # Install Development Tools and Libraries
 sudo yum groupinstall -y "Development Tools"
-sudo yum install -y openssl-devel bzip2-devel libffi-devel zlib-devel gcc
+sudo yum install -y openssl-devel bzip2-devel libffi-devel zlib-devel
+
+# check if gcc installed yet
+gcc --version
+if [ $? -ne 0 ]; then
+    yum -y downgrade glibc glibc-common
+    yum -y install gcc
+fi
 
 # Download and extract Python 3.10 source code
 cd /home/deploy
