@@ -32,7 +32,7 @@
         set $skip_cache 1;
       }
       if ($request_uri ~* ^(/lunar|/cart|/checkout|.*\.php)$) {
-          set $kip_cache 1;
+          set $skip_cache 1;
       }
 
 - name: Up date location block
