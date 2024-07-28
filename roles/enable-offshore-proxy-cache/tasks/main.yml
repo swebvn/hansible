@@ -31,7 +31,7 @@
       if ($http_authorization) {
         set $skip_cache 1;
       }
-      if ($request_uri ~* ^(/lunar|/cart|/checkout|.*\.php)$) {
+      if ($request_uri ~* ^(/lunar|/wp-admin|/cart|/checkout|/thanh-toan|/gio-hang|.*\.php)$) {
           set $skip_cache 1;
       }
 
