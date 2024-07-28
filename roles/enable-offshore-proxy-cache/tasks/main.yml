@@ -45,9 +45,9 @@
       proxy_cache_bypass $skip_cache;
       proxy_no_cache $skip_cache;
 
-- name: Reload nginx
+- name: Restart nginx
   ansible.builtin.service:
     name: nginx
-    state: reloaded
+    state: restarted
 
 
