@@ -14,9 +14,9 @@
     patterns: "*.conf"
   register: nginx_conf_files
 
-- name: Up date server block
+- name: Update server block
   with_items: "{{ nginx_conf_files.files }}"
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ item.path }}"
     marker: "# {mark} ANSIBLE SERVER CACHE" # never change this line
     insertafter: "server {"
@@ -31,7 +31,7 @@
       if ($http_authorization) {
         set $skip_cache 1;
       }
-      if ($request_uri ~* ^(/lunar.*|/wp-admin.*|/cart.*|/checkout.*|/thanh-toan.*|/gio-hang.*|/api.*|/wp-json.*|.*\.php|.*.xml)$) {
+      if ($request_uri ~* ^(/lunar.*|/wp-admin.*|/cart.*|/checkout.*|/thanh-toan.*|/gio-hang.*|/api.*|/wp-json.*|.*\.php|.*\.xml)$) {
           set $skip_cache 1;
       }
 
@@ -40,9 +40,9 @@
           set $skip_cache 1;
       }
 
-- name: Up date location block
+- name: Update location block
   with_items: "{{ nginx_conf_files.files }}"
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ item.path }}"
     marker: "# {mark} ANSIBLE LOCATION CACHE" # never change this line
     insertafter: "location / {"
@@ -54,5 +54,3 @@
   ansible.builtin.service:
     name: nginx
     state: restarted
-
-
