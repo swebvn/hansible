@@ -1,6 +1,6 @@
 - name: Upload script file
   copy:
-    src: "/files/tune-rocket.sh"
+    src: "files/tune-rocket.sh"
     dest: "/tmp"
 
 - name: Run script
