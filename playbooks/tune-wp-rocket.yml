@@ -1,0 +1,9 @@
+---
+- name: Tune Wordpress rocket settings
+  hosts: all
+  become: true
+  become_method: sudo
+
+  roles:
+    - install-wp-cli
+    - tune-wp-rocket
