@@ -1,10 +1,10 @@
-for plugin_dir in /home/*/domains/*/public_html/wp-content/plugins/; do
+for website_dir in /home/*/domains/*/public_html/; do
   # check of wp-rocket folder exists
-  if [ -d "$plugin_dir/wp-rocket" ]; then
+  if [ -d "$website_dir/wp-content/plugins/wp-rocket" ]; then
     #change current directory to the plugin directory
-    cd $plugin_dir
+    cd $website_dir
 
-    echo "Tuning WP Rocket settings for $plugin_dir"
+    echo "Tuning WP Rocket settings for $website_dir"
 
     # we need check if the
     wp-cli option patch update wp_rocket_settings manual_preload 0 --allow-root
