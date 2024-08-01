@@ -7,7 +7,7 @@ for website_dir in /home/*/domains/*/public_html/; do
     echo "Tuning WP Rocket settings for $website_dir"
 
     # we need check if the
-    wp-cli option patch update wp_rocket_settings manual_preload 0 --allow-root
-    wp-cli option patch update wp_rocket_settings purge_cron_interval 322 --allow-root
+    wp-cli option patch update wp_rocket_settings manual_preload 0 --allow-root || echo "Failed to update manual_preload"
+    wp-cli option patch update wp_rocket_settings purge_cron_interval 322 --allow-root || echo "Failed to update purge_cron_interval"
   fi
 done
