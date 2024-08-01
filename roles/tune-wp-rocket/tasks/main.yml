@@ -1,11 +1,11 @@
 - name: Upload script file
-  ansible.builtin.copy:
-    src: "/files/run.sh"
+  copy:
+    src: "/files/tune-rocket.sh"
     dest: "/tmp"
 
 - name: Run script
-  ansible.builtin.shell:
+  shell:
     chdir: "/tmp"
     cmd: |
-      chmod +x run.sh
-      ./run.sh
+      chmod +x tune-rocket.sh
+      ./tune-rocket.sh
