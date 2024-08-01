@@ -9,3 +9,8 @@
     cmd: |
       chmod +x tune-rocket.sh
       ./tune-rocket.sh
+  register: tune_rocket
+
+- name: Debug the tune_rocket
+  debug:
+    var: tune_rocket
