@@ -14,13 +14,6 @@
     patterns: "*.conf"
   register: nginx_conf_files
 
-- name: Remove incorrect server block insertions (if any)
-  ansible.builtin.blockinfile:
-    path: "{{ item.path }}"
-    marker: "# {mark} ANSIBLE SERVER CACHE"
-    state: absent
-  loop: "{{ nginx_conf_files.files }}"
-
 - name: Update first server block
   with_items: "{{ nginx_conf_files.files }}"
   ansible.builtin.blockinfile:
