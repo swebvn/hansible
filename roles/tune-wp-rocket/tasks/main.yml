@@ -1,9 +1,9 @@
-- name: Upload script file
+- name: Upload tune-rocket.sh script file
   copy:
     src: "files/tune-rocket.sh"
     dest: "/tmp"
 
-- name: Run script
+- name: Run script tune-rocket.sh
   shell:
     chdir: "/tmp"
     cmd: |
