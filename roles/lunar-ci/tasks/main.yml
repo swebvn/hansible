@@ -1,0 +1,19 @@
+# code: language = ansible
+- name: Copy file to remote host
+  copy:
+    src: files/{{ item }}
+    dest: /tmp/
+  with_items:
+    - run.sh
+
+- name: Make sure execute pers bash file
+  shell: chmod a+x /tmp/run.sh
+
+- name: Run script
+  shell: "./run.sh"
+  args:
+    chdir: "/tmp"
+  register: console
+
+- debug:
+    var: console.stdout_lines

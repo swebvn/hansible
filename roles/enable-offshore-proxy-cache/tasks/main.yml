@@ -19,7 +19,7 @@
   ansible.builtin.blockinfile:
     path: "{{ item.path }}"
     marker: "# {mark} ANSIBLE SERVER CACHE" # never change this line
-    insertafter: "^server\\b"
+    insertbefore: "locattion / {"
     block: |
       proxy_cache my_cache;
       proxy_cache_key "$host$request_uri$scheme$proxy_host";
