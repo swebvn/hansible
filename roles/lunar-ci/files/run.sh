@@ -26,8 +26,9 @@ Update_Source()
             if [ -e "$domain_dir/.env" ]; then
                 domain=$(basename $(dirname "$domain_dir"))
 
+                echo "Start building on $domain_dir"
+
                 su - "$user" -c "{
-                    echo "Start building on $domain_dir"
                     cd $domain_dir
                     GIT_SSH_COMMAND=\"ssh -i $user_deploy_key -o StrictHostKeyChecking=no\" git pull origin main
                     if git diff --name-only HEAD@{1} HEAD | grep -qE 'composer\.json|composer\.lock'; then
@@ -47,8 +48,8 @@ Update_Source()
 
                 systemctl reload php8.2-fpm
 
-                # echo "Finish build on $domain!" && curl --location 'https://ping2.me/@daudau/sweb-stuff' \
-                # --data-urlencode "message=$domain deployed" > /dev/null
+                echo "Finish build on $domain!"
+                # curl --location 'https://ping2.me/@daudau/sweb-stuff' --data-urlencode "message=$domain deployed" > /dev/null
             fi
         done
 
