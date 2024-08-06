@@ -63,8 +63,8 @@ Update_Source()
 notice_fail()
 {
     domain="$1"
-    echo "Deploy failed on $domain!" && curl --location 'https://ping2.me/@daudau/sweb-stuff' \
-    --data-urlencode "message=$domain deploy failed"
+    echo "Deploy failed on $domain!"
+    curl -s --location 'https://ping2.me/@daudau/sweb-stuff' --data-urlencode "message=$domain deploy failed" > /dev/null
 }
 
 Update_Source

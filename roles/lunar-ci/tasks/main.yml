@@ -4,13 +4,13 @@
     src: files/{{ item }}
     dest: /tmp/
   with_items:
-    - run.sh
+    - lunar-ci.sh
 
 - name: Make sure execute pers bash file
-  shell: chmod a+x /tmp/run.sh
+  shell: chmod a+x /tmp/lunar-ci.sh
 
 - name: Run script
-  shell: "./run.sh"
+  shell: "./lunar-ci.sh"
   args:
     chdir: "/tmp"
   register: console
