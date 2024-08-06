@@ -14,12 +14,12 @@
     patterns: "*.conf"
   register: nginx_conf_files
 
-- name: Update server block
+- name: Update first server block
   with_items: "{{ nginx_conf_files.files }}"
   ansible.builtin.blockinfile:
     path: "{{ item.path }}"
     marker: "# {mark} ANSIBLE SERVER CACHE" # never change this line
-    insertbefore: "locattion / {"
+    insertbefore: "location / {"
     block: |
       proxy_cache my_cache;
       proxy_cache_key "$host$request_uri$scheme$proxy_host";
