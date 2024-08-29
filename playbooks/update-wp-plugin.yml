@@ -1,0 +1,10 @@
+---
+
+- name: Update WordPress plugin
+  hosts: all
+  strategy: free
+  become: yes
+  become_method: sudo
+
+  roles:
+    - update-wp-plugin
