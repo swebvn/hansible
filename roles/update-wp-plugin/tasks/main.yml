@@ -36,32 +36,18 @@
     remote_src: yes
   tags: unzip
 
-- name: Check if the plugin directory exists on each site
-  stat:
-    path: "{{ item }}/{{ plugin_name }}"
+- name: Use rsync to update plugin files
+  command: rsync -av --delete /tmp/{{ plugin_name }}/ {{ item }}/{{ plugin_name }}/
   with_items: "{{ plugin_dirs }}"
-  register: plugin_dir_exists
-  changed_when: false
-
-- name: Copy plugin files from /tmp to each site if plugin exists
-  copy:
-    src: "/tmp/{{ plugin_name }}/"
-    dest: "{{ item.item }}/{{ plugin_name }}/"
-    remote_src: true
-    mode: 'u+rX'
-  with_items: "{{ plugin_dir_exists.results }}"
-  when: plugin_dir_exists.stat.exists
-  tags: copy
 
 - name: Change ownership of the plugin directory if plugin exists
   file:
-    path: "{{ item.item }}/{{ plugin_name }}"
+    path: "{{ item }}/{{ plugin_name }}"
     state: directory
-    owner: "{{ plugin_users[plugin_dirs.index(item.item)] }}"
-    group: "{{ plugin_users[plugin_dirs.index(item.item)] }}"
+    owner: "{{ plugin_users[plugin_dirs.index(item)] }}"
+    group: "{{ plugin_users[plugin_dirs.index(item)] }}"
     recurse: true
-  with_items: "{{ plugin_dir_exists.results }}"
-  when: plugin_dir_exists.stat.exists
+  with_items: "{{ plugin_dirs }}"
 
 - name: Cleanup after update
   file:
