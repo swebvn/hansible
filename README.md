@@ -12,5 +12,5 @@ ansible-playbook playbooks/install-wp-plugin.yml -e "plugin_zip=intercept-carshi
 Copy the plugin zip file in `/roles/update-wp-plugin/files/` folder.
 Sample command
 ```bash
-ansible-playbook playbooks/update-wp-plugin.yml -e "plugin_zip=intercept-cardshield.zip" -i inventory/wordpress.ini"
+ansible-playbook playbooks/update-wp-plugin.yml -e "plugin_zip=intercept-cardshield.zip plugin_name=intercept-cardshield" -i inventory/wordpress.ini"
 ```
