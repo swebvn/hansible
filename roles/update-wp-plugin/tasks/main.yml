@@ -47,10 +47,10 @@
   copy:
     src: "/tmp/{{ plugin_name }}/"
     dest: "{{ item.item }}/{{ plugin_name }}/"
-    remote_src: yes
+    remote_src: true
     mode: 'u+rX'
   with_items: "{{ plugin_dir_exists.results }}"
-  when: item.stat.exists
+  when: plugin_dir_exists.stat.exists
   tags: copy
 
 - name: Change ownership of the plugin directory if plugin exists
@@ -59,9 +59,9 @@
     state: directory
     owner: "{{ plugin_users[plugin_dirs.index(item.item)] }}"
     group: "{{ plugin_users[plugin_dirs.index(item.item)] }}"
-    recurse: yes
+    recurse: true
   with_items: "{{ plugin_dir_exists.results }}"
-  when: item.stat.exists
+  when: plugin_dir_exists.stat.exists
 
 - name: Cleanup after update
   file:
