@@ -30,13 +30,13 @@ Update_Source()
 
                 su - "$user" -c "{
                     cd $domain_dir
-                    GIT_SSH_COMMAND=\"ssh -i $user_deploy_key -o StrictHostKeyChecking=no\" git pull origin main
                     if [ -f pnpm-lock.yaml ]; then
                         git checkout pnpm-lock.yaml
                     fi
                     if [ -f composer.lock ]; then
                         git checkout composer.lock
                     fi
+                    GIT_SSH_COMMAND=\"ssh -i $user_deploy_key -o StrictHostKeyChecking=no\" git pull origin main
                     if git diff --name-only HEAD@{1} HEAD | grep -qE 'composer\.json|composer\.lock'; then
                         composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
                     fi
