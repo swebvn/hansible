@@ -36,14 +36,9 @@
     remote_src: yes
   tags: unzip
 
-- name: Copy plugin files from /tmp to each site
-  copy:
-    src: "/tmp/{{ plugin_name }}/"
-    dest: "{{ item }}/{{ plugin_name }}/"
-    remote_src: yes
-    mode: 'u+rX'
+- name: Use rsync to update plugin files
+  command: rsync -av /tmp/{{ plugin_name }} {{ item }}/{{ plugin_name }}
   with_items: "{{ plugin_dirs }}"
-  tags: copy
 
 - name: Change ownership of the plugin directory
   file:
