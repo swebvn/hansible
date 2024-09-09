@@ -1,28 +1,4 @@
 # tasks/main.yml
-- name: Find all WordPress plugin directories
-  shell: "find /home -maxdepth 6 -type d -path '*/public_html/wp-content/plugins'"
-  register: wp_plugin_dirs
-  changed_when: false
-
-- name: Set fact for plugins directories
-  set_fact:
-    plugin_dirs: "{{ wp_plugin_dirs.stdout_lines }}"
-
-- name: Extract user home directories
-  set_fact:
-    plugin_users: "{{ plugin_dirs | map('regex_replace', '^/home/([^/]+)/.*$', '\\1') | unique | list }}"
-
-- name: Debug the plugin directories
-  debug:
-    var: plugin_dirs
-
-- name: Debug the plugin directories
-  debug:
-    var: plugin_users
-
-# - name: End here
-  # meta: end_play
-
 - name: Copy plugin zip file to /tmp folder
   copy:
     src: "files/{{ plugin_zip }}"
@@ -36,22 +12,13 @@
     remote_src: yes
   tags: unzip
 
-- name: Use rsync to update plugin files
-  command: rsync -av /tmp/{{ plugin_name }}/ {{ item }}/{{ plugin_name }}/
-  with_items: "{{ plugin_dirs }}"
+- name: Upload the update_plugin.sh script to /tmp
+  copy:
+    src: "files/update_plugin.sh"
+    dest: "/tmp/update_plugin.sh"
+    mode: '0755'  # Ensure the script is executable
+  tags: script
 
-- name: Change ownership of the plugin directory
-  file:
-    path: "{{ item }}/{{ plugin_name }}"
-    state: directory
-    owner: "{{ plugin_users[plugin_dirs.index(item)] }}"
-    group: "{{ plugin_users[plugin_dirs.index(item)] }}"
-    recurse: yes
-  with_items: "{{ plugin_dirs }}"
-
-- name: Activate the plugin for each site
-  shell: php -d memory_limit=512M /usr/bin/wp-cli plugin activate "{{ plugin_name }}" --path={{ item | regex_replace('/wp-content/plugins', '') }} --allow-root
-  with_items: "{{ plugin_dirs }}"
-  register: plugin_activation
-  failed_when: "'Success' not in plugin_activation.stdout"
-  changed_when: "'Success' in plugin_activation.stdout"
+- name: Execute plugin update script
+  shell: "/tmp/update_plugin.sh {{ plugin_zip }} {{ plugin_name }}"
+  tags: execute

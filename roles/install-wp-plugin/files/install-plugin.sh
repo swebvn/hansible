@@ -1,0 +1,20 @@
+#!/bin/bash
+
+plugin_zip=$1
+plugin_name=$2
+
+# Find all WordPress plugin directories with the specified pattern
+for dir in /home/*/domains/*/public_html/wp-content/plugins; do
+  # Extract the username from the directory path
+  user=$(echo "$dir" | sed -r 's|^/home/([^/]+)/.*|\1|')
+
+  # Rsync the plugin files to the plugin directory
+  rsync -av /tmp/${plugin_name}/ "${dir}/${plugin_name}/"
+
+  # Change ownership of the plugin directory
+  chown -R "${user}:${user}" "${dir}/${plugin_name}"
+
+  # Activate the plugin using wp-cli
+  wp_path=$(echo "$dir" | sed 's|/wp-content/plugins||')
+  php -d memory_limit=512M /usr/bin/wp-cli plugin activate "$plugin_name" --path="$wp_path" --allow-root
+done
