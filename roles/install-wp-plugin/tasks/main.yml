@@ -37,7 +37,7 @@
   tags: unzip
 
 - name: Use rsync to update plugin files
-  command: rsync -av /tmp/{{ plugin_name }} {{ item }}/{{ plugin_name }}
+  command: rsync -av /tmp/{{ plugin_name }}/ {{ item }}/{{ plugin_name }}/
   with_items: "{{ plugin_dirs }}"
 
 - name: Change ownership of the plugin directory
