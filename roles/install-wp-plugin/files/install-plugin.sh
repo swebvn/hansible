@@ -17,4 +17,9 @@ for dir in /home/*/domains/*/public_html/wp-content/plugins; do
   # Activate the plugin using wp-cli
   wp_path=$(echo "$dir" | sed 's|/wp-content/plugins||')
   php -d memory_limit=512M /usr/bin/wp-cli plugin activate "$plugin_name" --path="$wp_path" --allow-root
+
+  # Check if the wp-cli command failed
+  if [ $? -ne 0 ]; then
+    echo "Failed to activate plugin ${plugin_name} for site at ${wp_path}. Continuing..."
+  fi
 done
