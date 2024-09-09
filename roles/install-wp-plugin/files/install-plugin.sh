@@ -9,7 +9,7 @@ for dir in /home/*/domains/*/public_html/wp-content/plugins; do
   user=$(echo "$dir" | sed -r 's|^/home/([^/]+)/.*|\1|')
 
   # Rsync the plugin files to the plugin directory
-  rsync -av /tmp/${plugin_name}/ "${dir}/${plugin_name}/"
+  rsync -a /tmp/${plugin_name}/ "${dir}/${plugin_name}/"
 
   # Change ownership of the plugin directory
   chown -R "${user}:${user}" "${dir}/${plugin_name}"
