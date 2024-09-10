@@ -12,13 +12,19 @@
     remote_src: yes
   tags: unzip
 
-- name: Upload the update_plugin.sh script to /tmp
+- name: Upload the install-plugin.sh script to /tmp
   copy:
-    src: "files/update_plugin.sh"
-    dest: "/tmp/update_plugin.sh"
+    src: "files/install-plugin.sh"
+    dest: "/tmp/install-plugin.sh"
     mode: '0755'  # Ensure the script is executable
   tags: script
 
 - name: Execute plugin update script
-  shell: "/tmp/update_plugin.sh {{ plugin_zip }} {{ plugin_name }}"
+  shell: "/tmp/install-plugin.sh {{ plugin_zip }} {{ plugin_name }}"
+  register: plugin_update_log
+  ignore_errors: yes  # Continue even if the script fails
   tags: execute
+
+- name: Show plugin update script output
+  debug:
+    msg: "{{ plugin_update_log }}"
