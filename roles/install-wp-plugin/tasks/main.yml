@@ -25,6 +25,6 @@
   ignore_errors: yes  # Continue even if the script fails
   tags: execute
 
-- name: Show plugin update script output
-  debug:
-    msg: "{{ plugin_update_log }}"
+# - name: Show plugin update script output
+#   debug:
+#     msg: "{{ plugin_update_log }}"
