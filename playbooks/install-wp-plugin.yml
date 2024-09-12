@@ -3,6 +3,7 @@
 - name: Install WordPress plugin
   hosts: all
   strategy: free
+  serial: 5
   become: yes
   become_method: sudo
 
