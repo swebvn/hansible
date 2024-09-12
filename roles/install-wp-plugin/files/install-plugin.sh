@@ -5,6 +5,7 @@ plugin_name=$2
 
 # Find all WordPress plugin directories with the specified pattern
 for dir in /home/*/domains/*/public_html/wp-content/plugins; do
+  echo "Current dir: $dir"
   # Extract the username from the directory path
   user=$(echo "$dir" | sed -r 's|^/home/([^/]+)/.*|\1|')
 
