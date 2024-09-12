@@ -17,7 +17,8 @@ for dir in /home/*/domains/*/public_html/wp-content/plugins; do
 
   # Activate the plugin using wp-cli
   wp_path=$(echo "$dir" | sed 's|/wp-content/plugins||')
-  php -d memory_limit=512M /usr/bin/wp-cli plugin activate "$plugin_name" --path="$wp_path" --allow-root
+  # we really need a timeout here, because the hacked wp site run this forever
+  timeout 30s php -d memory_limit=512M /usr/bin/wp-cli plugin activate "$plugin_name" --path="$wp_path" --allow-root
 
   # Check if the wp-cli command failed
   if [ $? -ne 0 ]; then
