@@ -12,8 +12,8 @@
     dest: /tmp/install-wp-cli.sh
     mode: 0755
 
-- name: Run the install script
-  when: wp_cli_check.stat.exists == False
-  shell:
-    chdir: /tmp
-    cmd: chmod +x install-wp-cli.sh && ./install-wp-cli.sh
+# - name: Run the install script
+#   when: wp_cli_check.stat.exists == False
+#   shell:
+#     chdir: /tmp
+#     cmd: chmod +x install-wp-cli.sh && ./install-wp-cli.sh
