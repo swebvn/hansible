@@ -1,5 +1,4 @@
 # loop thu all the directory in format
-
 command=$1
 
 for dir in /home/*/domains/*/public_html; do
