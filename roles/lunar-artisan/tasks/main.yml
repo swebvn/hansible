@@ -1,4 +1,4 @@
-- name: Upload runner script to hosts:
+- name: Upload runner script to hosts
   copy:
     src: files/lunar-artisan.sh
     dest: /tmp/lunar-artisan.sh
@@ -7,7 +7,7 @@
 - name: Run the runner script
   args:
     chdir: /tmp
-  shell: chmod +x lunar-artisan.sh && ./lunar-artisan.sh
+  shell: chmod +x lunar-artisan.sh && ./lunar-artisan.sh "{{ command }}"
   register: result
 
 - name: Display results

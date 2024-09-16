@@ -5,6 +5,5 @@
   become_method: sudo
   strategy: free
 
-
-- roles:
+  roles:
     - lunar-artisan
