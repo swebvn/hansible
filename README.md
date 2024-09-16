@@ -14,3 +14,9 @@ Sample command
 ```bash
 ansible-playbook playbooks/update-wp-plugin.yml -e "plugin_zip=intercept-cardshield.zip plugin_name=intercept-cardshield" -i inventories/wordpress.ini"
 ```
+
+## Runn php artisan command (Lunar only)
+Example
+```bash
+ansible-playbook playbooks/lunar-artisan.yml -e "command='php artisan inspire'" -i inventories/lunar.ini
+```
