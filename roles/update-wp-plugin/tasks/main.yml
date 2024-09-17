@@ -1,32 +1,15 @@
 # tasks/main.yml
-- name: Find all WordPress plugin directories
-  shell: "find /home -maxdepth 6 -type d -path '*/public_html/wp-content/plugins'"
-  register: wp_plugin_dirs
-  changed_when: false
-
-- name: Set fact for plugins directories
-  set_fact:
-    plugin_dirs: "{{ wp_plugin_dirs.stdout_lines }}"
-
-- name: Extract user home directories
-  set_fact:
-    plugin_users: "{{ plugin_dirs | map('regex_replace', '^/home/([^/]+)/.*$', '\\1') | unique | list }}"
-
-- name: Debug the plugin directories
-  debug:
-    var: plugin_dirs
-
-- name: Debug the plugin directories
-  debug:
-    var: plugin_users
-
-# - name: End here
-  # meta: end_play
-
 - name: Copy plugin zip file to /tmp folder
   copy:
     src: "files/{{ plugin_zip }}"
     dest: "/tmp/{{ plugin_zip }}"
+  tags: upload
+
+- name: Copy update-plugin.sh to /tmp folder
+  copy:
+    src: "files/update-plugin.sh"
+    dest: "/tmp/update-plugin.sh"
+    mode: +x
   tags: upload
 
 - name: Unzip the plugin file in /tmp
@@ -36,21 +19,7 @@
     remote_src: yes
   tags: unzip
 
-- name: Use rsync to update plugin files
-  command: rsync -av --delete /tmp/{{ plugin_name }}/ {{ item }}/{{ plugin_name }}/
-  with_items: "{{ plugin_dirs }}"
-
-- name: Change ownership of the plugin directory if plugin exists
-  file:
-    path: "{{ item }}/{{ plugin_name }}"
-    state: directory
-    owner: "{{ plugin_users[plugin_dirs.index(item)] }}"
-    group: "{{ plugin_users[plugin_dirs.index(item)] }}"
-    recurse: true
-  with_items: "{{ plugin_dirs }}"
-
-- name: Cleanup after update
-  file:
-    path: "/tmp/{{ plugin_name }}"
-    state: absent
-
+- name: Run the update-plugin.sh script
+  args:
+    chdir: /tmp
+  shell: chmod +x update-plugin.sh && ./update-plugin.sh "{{ plugin_zip }}" "{{ plugin_name }}"
