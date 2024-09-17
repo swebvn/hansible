@@ -6,6 +6,9 @@ for dir in /home/*/domains/*/public_html/wp-content/plugins; do
 
     echo "Updating plugin $plugin_name for user $user"
 
-    rsync -avh "/tmp/$plugin_name" "$dir/$plugin_name"
+    rsync -avh "/tmp/$plugin_name/" "$dir/$plugin_name/"
     chown -R $user:$user "$dir/$plugin_name"
 done
+
+# remove the unzip folder
+rm -rf "/tmp/$plugin_name"
