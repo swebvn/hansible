@@ -52,12 +52,12 @@ Update_Source()
                     php artisan horizon:terminate
                 }" || { notice_fail "$domain" && continue; }
 
-                systemctl reload php8.2-fpm
-
                 echo "Finish build on $domain!"
                 # curl --location 'https://ping2.me/@daudau/sweb-stuff' --data-urlencode "message=$domain deployed" > /dev/null
             fi
         done
+
+        systemctl reload php8.2-fpm
 
         # remove the deploy key from user's home directory
         if [ -f "$user_deploy_key" ]; then
