@@ -46,8 +46,6 @@ Update_Source()
                     php artisan migrate --force
                     php artisan optimize
                     php artisan route:clear
-                    php artisan icon:cache
-                    php artisan filament:cache-components
                     php artisan deploy:cleanup
                     php artisan horizon:terminate
                 }" || { notice_fail "$domain" && continue; }
