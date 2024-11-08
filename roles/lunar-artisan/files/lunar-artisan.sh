@@ -12,6 +12,7 @@ for dir in /home/*/domains/*/public_html; do
     # run the artisan command
     su - $user -c "{
         cd $dir
+        echo "RUNNING AT: $dir"
         $command
     }"
 done
