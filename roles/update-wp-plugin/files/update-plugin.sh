@@ -1,6 +1,9 @@
 plugin_zip=$1
 plugin_name=$2
 
+# Unzip the plugin zip
+unzip -o $plugin_zip
+
 for dir in /home/*/domains/*/public_html/wp-content/plugins; do
     user=$(echo $dir | cut -d'/' -f3)
 
