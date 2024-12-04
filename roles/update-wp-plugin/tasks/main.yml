@@ -12,12 +12,14 @@
     mode: +x
   tags: upload
 
-- name: Unzip the plugin file in /tmp
-  unarchive:
-    src: "/tmp/{{ plugin_zip }}"
-    dest: "/tmp"
-    remote_src: yes
-  tags: unzip
+# - name: Unzip the plugin file in /tmp
+#   unarchive:
+#     src: "/tmp/{{ plugin_zip }}"
+#     dest: "/tmp"
+#     remote_src: yes
+#     extra_opts:
+#       - -j
+#   tags: unzip
 
 - name: Run the update-plugin.sh script
   args:
