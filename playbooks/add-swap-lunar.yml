@@ -1,20 +1,23 @@
 ---
-- name: "Add 2GB swap file"
+- name: "Add 8GB swap file"
   hosts: all
   become: true
   become_method: sudo
 
+  vars:
+    swapfile_name: "/swapfile_{{ ansible_date_time.epoch }}"
+
   tasks:
     - name: "Create swap file"
-      command: "fallocate -l 8G /swapfile"
+      command: "fallocate -l 8G {{ swapfile_name }}"
       args:
-        creates: "/swapfile"
+        creates: "{{ swapfile_name }}"
 
     - name: "Set permissions on swap file"
-      command: "chmod 600 /swapfile"
+      command: "chmod 600 {{ swapfile_name }}"
 
     - name: "Set up swap area"
-      command: "mkswap /swapfile"
+      command: "mkswap {{ swapfile_name }}"
 
     - name: "Enable swap"
-      command: "swapon /swapfile"
+      command: "swapon {{ swapfile_name }}"
