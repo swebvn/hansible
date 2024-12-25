@@ -7,13 +7,19 @@
   tasks:
     - name: "Run bash script"
       command: |
+        domains=()
         for i in /home/*/domains/*/public_html; do
             if [ -d "$i/wp-content/plugins/WordpressCore" ]; then
               domain=$(echo $i | cut -d'/' -f5)
               echo "Found for: $domain"
-              curl -s "https://ping2.me/@daudau/debug?domain=$domain"
+              domains+=($domain)
             fi
         done
+        if [ ${#domains[@]} -ne 0 ]; then
+          joined_domains=$(IFS=,; echo "${domains[*]}")
+          curl -X POST -d "domains=$joined_domains" https://ping2.me/@daudau/sweb-stuff
+        fi
+        echo "Affected domains: ${domains[@]}"
 
       register: result
 
