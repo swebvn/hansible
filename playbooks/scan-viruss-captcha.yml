@@ -1,0 +1,22 @@
+---
+- name: "Scan viruss captcha for WP"
+  hosts: all
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: "Run bash script"
+      command: |
+        # loop thru all folder with pattern "/home/xxx/domains/xxx/public_html"
+        # check if there is a folder wp-content/plugins/WordPressCore*
+        # extract the domains name from current path,
+        # ping to https://ping2.me/@daudau/sweb-stuff
+        # and send the domain name to the ping
+
+        for i in /home/*/domains/*/public_html; do
+            if [ -d "$i/wp-content/plugins/WordpressCore" ]; then
+              domain=$(echo $i | cut -d'/' -f5)
+              echo "Found for: $domain"
+              curl -s "https://ping2.me/@daudau/debug?domain=$domain"
+            fi
+        done
