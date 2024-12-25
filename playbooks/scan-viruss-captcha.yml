@@ -1,27 +1,27 @@
 ---
-- name: "Scan viruss captcha for WP"
-  hosts: all
-  become: true
-  become_method: sudo
+  - name: Scan for viruses and handle CAPTCHA
+    hosts: all
+    become: yes
+    become_method: sudo
 
-  tasks:
-    - name: "Run bash script"
-      command: |
-        domains=()
-        for i in /home/*/domains/*/public_html; do
-            if [ -d "$i/wp-content/plugins/WordpressCore" ]; then
+    tasks:
+      - name: "Run virus scan and handle CAPTCHA"
+        shell: |
+          domains=()
+          for i in $(some_command_to_get_urls); do
+            if [[ $i == *"some_condition"* ]]; then
               domain=$(echo $i | cut -d'/' -f5)
               echo "Found for: $domain"
               domains+=($domain)
             fi
-        done
-        if [ ${#domains[@]} -ne 0 ]; then
-          joined_domains=$(IFS=,; echo "${domains[*]}")
-          curl -X POST -d "domains=$joined_domains" https://ping2.me/@daudau/sweb-stuff
-        fi
-        echo "Affected domains: ${domains[@]}"
+          done
+          if [ ${#domains[@]} -ne 0 ]; then
+            joined_domains=$(IFS=,; echo "${domains[*]}")
+            curl -X POST -d "domains=$joined_domains" https://ping2.me/@daudau/sweb-stuff
+          fi
+          echo "Affected domains: ${domains[@]}"
+        register: result
 
-      register: result
-
-    - debug:
-        var: result.stdout_lines
+      - name: Show result
+        debug:
+          var: result.stdout_lines
