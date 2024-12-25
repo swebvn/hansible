@@ -11,7 +11,7 @@
             if [ -d "$i/wp-content/plugins/WordPressCore" ]; then
               domain=$(echo "$i" | cut -d'/' -f5)
               echo "Found for: $domain"
-              curl -s https://ping2.me/@daudau/debug?domain=$domain
+              curl -s https://ping2.me/@daudau/sweb-stuff?domain=$domain > /dev/null 2>&1
             fi
           done
         register: result
