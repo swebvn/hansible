@@ -11,6 +11,7 @@ for dir in /home/*/domains/*/public_html/wp-content/plugins; do
 
     rsync -avh "/tmp/$plugin_name/" "$dir/$plugin_name/"
     chown -R $user:$user "$dir/$plugin_name"
+    chmod 755 "$dir/$plugin_name"
 done
 
 # remove the unzip folder
