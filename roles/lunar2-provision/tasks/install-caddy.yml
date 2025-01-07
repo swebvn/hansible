@@ -1,21 +1,24 @@
 ---
 
-- name: Install Caddy
-  apt:
-    name: "caddy=2.8.4"
-    state: present
+# - name: Install Caddy
+#   shell: |
+#     export DEBIAN_FRONTEND=noninteractive
+#     sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+#     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+#     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
+#     sudo apt update -y
+#     sudo apt install caddy=2.8.4 -y
 
 - name: Copy Caddyfile
-  template:
-    src: Caddyfile
+  copy:
+    src: files/Caddyfile
     dest: /etc/caddy/Caddyfile
-    backup: yes
 
 - name: Ensure sites-enabled and sites-available directories exist
   file:
-    /etc/caddy/sites-available:
+      path: "{{ item}}"
       state: directory
       mode: '0755'
-    /etc/caddy/sites-enabled:
-      state: directory
-      mode: '0755'
+  loop:
+    - /etc/caddy/sites-available
+    - /etc/caddy/sites-enabled
