@@ -1,0 +1,45 @@
+---
+- name: Add php repository
+  shell: echo "yes" | sudo add-apt-repository ppa:ondrej/php
+
+- name: install php 8.2
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - php8.2
+    - php8.2-fpm
+    - php8.2-bcmath
+    - php8.2-xml
+    - php8.2-mysql
+    - php8.2-zip
+    - php8.2-intl
+    - php8.2-ldap
+    - php8.2-gd
+    - php8.2-cli
+    - php8.2-bz2
+    - php8.2-curl
+    - php8.2-mbstring
+    - php8.2-pgsql
+    - php8.2-opcache
+    - php8.2-soap
+    - php8.2-cgi
+    - build-essential
+    - php8.2-dev
+
+- name: pecl install php-redis
+  shell: sudo echo -e "\n\n\n\n\n\n" | sudo pecl install redis
+  ignore_errors: yes
+
+- name: add redis.ini
+  shell: sudo echo 'extension="/usr/lib/php/20220829/redis.so"' > /etc/php/8.2/mods-available/redis.ini
+
+- name: symbolic link redis extension
+  shell: sudo ln -s /etc/php/8.2/mods-available/redis.ini /etc/php/8.2/cli/conf.d/20-redis.ini && sudo ln -s /etc/php/8.2/mods-available/redis.ini /etc/php/8.2/fpm/conf.d/redis.ini
+  ignore_errors: yes
+
+- name: start php8.2-fpm
+  systemd:
+    name: php8.2-fpm
+    state: started
+    enabled: yes

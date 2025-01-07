@@ -1,0 +1,83 @@
+---
+- name: update all package
+  apt: name="*" state=latest
+
+- name: change sysctl config file
+  template:
+    src: sysctl.conf
+    dest: /etc/sysctl.conf
+    backup: yes
+
+- name: Create ~/.ssh directory if it doesn't exist
+  file:
+    path: ~/.ssh
+    state: directory
+    mode: '0700'
+
+- name: Add github.com configuration to ssh_config
+  lineinfile:
+    path: /etc/ssh/ssh_config
+    insertbefore: '^Host \*'
+    line: |
+      Host github.com
+      HostName github.com
+      IdentityFile ~/.ssh/deploy_rsa.pem
+
+- name: Copy deploy RSA key
+  copy:
+    src: /opt/key_deploy/id_rsa_deploy
+    dest: ~/.ssh/deploy_rsa.pem
+    mode: 0600
+
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - lsb-release
+    - gnupg2
+    - ca-certificates
+    - apt-transport-https
+    - software-properties-common
+    - net-tools
+    - jpegoptim
+    - optipng
+    - pngquant
+    - git
+    - python3-pip
+    - snap
+    - snapd
+
+
+- name: Enable UFW (Uncomplicated Firewall)
+  ufw:
+    state: enabled
+
+- name: Allow SSH (port 22) through UFW
+  ufw:
+    rule: allow
+    port: 22
+
+- name: Allow HTTP (port 80) through UFW
+  ufw:
+    rule: allow
+    port: 80
+
+- name: Allow HTTPS (port 443) through UFW
+  ufw:
+    rule: allow
+    port: 443
+
+- name: Allow Zabbix-agent (port 10050) through UFW
+  ufw:
+    rule: allow
+    port: 10050
+
+- name: change limit config file
+  blockinfile:
+    path: /etc/security/limits.conf
+    block: |
+      * soft nproc 102400
+      * hard nproc 102400
+      * soft nofile 102400
+      * hard nofile 102400
