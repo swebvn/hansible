@@ -1,5 +1,6 @@
 ---
-  name: Provision Lunar 2
+
+- name: Provision Lunar 2
   hosts: all
   become: true
   become_method: sudo

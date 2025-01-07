@@ -1,0 +1,21 @@
+---
+
+- name: Install Caddy
+  apt:
+    name: "caddy=2.8.4"
+    state: present
+
+- name: Copy Caddyfile
+  template:
+    src: Caddyfile
+    dest: /etc/caddy/Caddyfile
+    backup: yes
+
+- name: Ensure sites-enabled and sites-available directories exist
+  file:
+    /etc/caddy/sites-available:
+      state: directory
+      mode: '0755'
+    /etc/caddy/sites-enabled:
+      state: directory
+      mode: '0755'
