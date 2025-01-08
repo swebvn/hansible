@@ -10,3 +10,6 @@ role:
 
 lunar2:
 	ansible-playbook playbooks/lunar2-provision.yml -i ubuntu.local
+
+setup-prod:
+	cp ansible.cfg.prod ansible.cfg
