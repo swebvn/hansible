@@ -1,0 +1,14 @@
+---
+- name: Increase Nginx body size
+  hosts: all
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: "Increase Nginx body size"
+      blockinfile:
+        path: "/etc/nginx/nginx.conf"
+        marker: "# {mark} ANSIBLE MAX BODY SIZE"
+        insertafter: "^http {"
+        block: |
+          client_max_body_size 12M;
