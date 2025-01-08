@@ -1,5 +1,3 @@
----
-
 - name: Provision Lunar 2
   hosts: all
   become: true
