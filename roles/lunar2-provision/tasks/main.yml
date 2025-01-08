@@ -1,19 +1,18 @@
 ---
+- import_tasks: base.yml
+  name: "Import base tasks"
 
-- name: "Import base tasks"
-  ansible.builtin.import_tasks: base.yml
+- import_tasks: install-php.yml
+  name: "Install PHP"
 
-- name: "Install PHP"
-  ansible.builtin.import_tasks: install-php.yml
+- import_tasks: install-caddy.yml
+  name: "Install Caddy"
 
-- name: Install Caddy
-  ansible.builtin.import_tasks: install-caddy.yml
+- import_tasks: install-node.yml
+  name: "Install Node"
 
-- name: Install Node
-  ansible.builtin.import_tasks: install-node.yml
-
-- name: Install redis
-  ansible.builtin.import_tasks: install-redis.yml
+- import_tasks: install-redis.yml
+  name: "Install Redis"
 
 # - name: Install Zabbix
 #   ansible.builtin.import_tasks: install-zabbix.yml
