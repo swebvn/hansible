@@ -12,3 +12,6 @@
         insertafter: "^http {"
         block: |
           client_max_body_size 12M;
+
+    - name: "Reload Nginx"
+      shell: service nginx restart
