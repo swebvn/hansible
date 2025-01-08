@@ -8,11 +8,13 @@
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
     sudo apt update -y
     sudo apt install caddy=2.8.4 -y
+  ignore_errors: yes
 
 - name: Copy Caddyfile
   copy:
     src: files/Caddyfile
     dest: /etc/caddy/Caddyfile
+  ignore_errors: yes
 
 - name: Ensure sites-enabled and sites-available directories exist
   file:
@@ -27,6 +29,8 @@
   copy:
     src: files/default
     dest: /etc/caddy/sites-available/default
+  ignore_errors: yes
 
 - name: create symlink
   shell: ln -s /etc/caddy/sites-available/default /etc/caddy/sites-enabled/default
+  ignore_errors: yes
