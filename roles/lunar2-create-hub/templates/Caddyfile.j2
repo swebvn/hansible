@@ -11,13 +11,12 @@
         X-XSS-Protection 1; mode=block
     }
 
-    php_fastcgi unix//run/php/php8.2-fpm.sock {
+    php_fastcgi unix//var/run/php/php8.2-fpm.sock {
         resolve_root_symlink
     }
 
     file_server
 {% endmacro %}
-
 {
     on_demand_tls {
         ask https://{{ domain }}/on-demand-tls

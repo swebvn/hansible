@@ -24,8 +24,8 @@
     - php8.2-opcache
     - php8.2-soap
     - php8.2-cgi
+    - php8.2-sqlite3
     - build-essential
-    - php8.2-dev
 
 - name: pecl install php-redis
   shell: sudo echo -e "\n\n\n\n\n\n" | sudo pecl install redis
