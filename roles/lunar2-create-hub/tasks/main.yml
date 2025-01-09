@@ -9,15 +9,15 @@
     state: directory
     mode: '0755'
 
-# - name: Clone the repository
-#   git:
-#     repo: 'git@github.com:swebvn/lucommerce.git'
-#     dest: "/home/deploy/{{ domain }}"
-#     version: '2.x'
-#     force: true
-#     depth: 1
-#   environment:
-#     GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+- name: Clone the repository
+  git:
+    repo: 'git@github.com:swebvn/lucommerce.git'
+    dest: "/home/deploy/{{ domain }}"
+    version: '2.x'
+    force: true
+    depth: 1
+  environment:
+    GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
 
 - name: Setup environment file
   shell: |
