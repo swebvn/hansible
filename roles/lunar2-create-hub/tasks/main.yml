@@ -3,6 +3,9 @@
   debug:
     msg: "{{ domain }} {{ bunny_api_key }} {{ bunny_storage_zone }} {{ bunny_pull_zone }}"
 
+- name: Chmod deploy folder
+  shell: chmod 755 /home/deploy
+
 - name: Create directory for the domain
   file:
     path: "/home/deploy/{{ domain }}"
