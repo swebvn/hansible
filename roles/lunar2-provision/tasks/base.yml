@@ -45,8 +45,6 @@
     - pngquant
     - git
     - python3-pip
-    - snap
-    - snapd
     - ufw
 
 
