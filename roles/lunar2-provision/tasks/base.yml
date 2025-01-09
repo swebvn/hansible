@@ -82,3 +82,9 @@
       * hard nproc 102400
       * soft nofile 102400
       * hard nofile 102400
+
+- name: make sure apache2 not install
+  apt:
+    name: apache2
+    state: absent
+  ignore_errors: yes
