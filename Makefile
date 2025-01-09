@@ -8,7 +8,7 @@ python3:
 role:
 	ansible-galaxy init roles/$(role)
 
-lunar2:
+lunar2-provision:
 	ansible-playbook playbooks/lunar2-provision.yml -i ubuntu.local
 
 setup-prod:

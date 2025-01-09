@@ -1,0 +1,68 @@
+---
+- name: debug vars
+  debug:
+    msg: "{{ domain }} {{ bunny_api_key }} {{ bunny_storage_zone }} {{ bunny_pull_zone }}"
+
+- name: Create directory for the domain
+  file:
+    path: "/home/deploy/{{ domain }}"
+    state: directory
+    mode: '0755'
+
+# - name: Clone the repository
+#   git:
+#     repo: 'git@github.com:swebvn/lucommerce.git'
+#     dest: "/home/deploy/{{ domain }}"
+#     version: '2.x'
+#     force: true
+#     depth: 1
+#   environment:
+#     GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+
+- name: Setup environment file
+  shell: |
+    cp .env.example .env
+    sed -i 's/^APP_ENV=.*/APP_ENV=production/' .env
+    sed -i 's/^APP_DEBUG=.*/APP_DEBUG=false/' .env
+    sed -i 's/^APP_URL=.*/APP_URL=https:\/\/{{ domain }}/' .env
+    sed -i 's/^BUNNY_API_KEY=.*/BUNNY_API_KEY={{ bunny_api_key }}/' .env
+    sed -i 's/^BUNNY_STORAGE_ZONE=.*/BUNNY_STORAGE_ZONE={{ bunny_storage_zone }}/' .env
+    sed -i 's/^BUNNY_PULL_ZONE=.*/BUNNY_PULL_ZONE={{ bunny_pull_zone }}/' .env
+  args:
+    chdir: "/home/deploy/{{ domain }}"
+
+- name: Basic Setup
+  args:
+    chdir: "/home/deploy/{{ domain }}"
+  shell: |
+    composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
+    php artisan key:generate
+    php artisan hub:install
+    php artisan storage:link
+    pnpm install && pnpm run build
+
+- name: Chown the directory
+  shell: |
+    chown -R deploy:deploy /home/deploy/{{ domain }}
+  ignore_errors: true
+
+- name: Setup systemd for Horizon
+  template:
+    src: templates/horizon.service.j2
+    dest: "/etc/systemd/system/{{ domain }}-horizon.service"
+
+- name: Start the Horizon service
+  systemd:
+    name: "{{ domain }}-horizon"
+    state: started
+    enabled: yes
+
+- name: Setup Caddy file
+  ansible.builtin.template:
+    src: templates/Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+
+- name: Reload Caddy
+  args:
+    chdir: "/etc/caddy"
+  shell: caddy reload

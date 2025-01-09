@@ -1,0 +1,4 @@
+---
+bunny_api_key: "[BUNNY_API_KEY]"
+bunny_storage_zone: "[BUNNY_STORAGE_ZONE]"
+bunny_pull_zone: "[BUNNY_PULL_ZONE]"

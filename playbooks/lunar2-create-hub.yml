@@ -1,0 +1,8 @@
+---
+- name: "Create new Hub"
+  hosts: all
+  become: true
+  become_method: sudo
+
+  roles:
+    - lunar2-create-hub
