@@ -21,7 +21,7 @@
 
 - name: Setup environment file
   lineinfile:
-    path: .env
+    path: /home/deploy/{{ domain }}.env
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
   with_items:
@@ -31,8 +31,6 @@
     - { key: "BUNNY_API_KEY", value: "{{ bunny_api_key }}" }
     - { key: "BUNNY_STORAGE_ZONE", value: "{{ bunny_storage_zone }}" }
     - { key: "BUNNY_PULL_ZONE", value: "{{ bunny_pull_zone }}" }
-  args:
-    chdir: "/home/deploy/{{ domain }}"
 
 - name: Basic Setup
   args:
