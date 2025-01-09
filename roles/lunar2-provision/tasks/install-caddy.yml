@@ -7,7 +7,7 @@
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor --yes -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
     sudo apt update -y
-    sudo apt install caddy=2.8.4 -y
+    sudo apt install caddy -y
   ignore_errors: yes
 
 - name: Copy Caddyfile
