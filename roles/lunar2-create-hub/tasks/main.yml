@@ -19,9 +19,14 @@
   environment:
     GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
 
-- name: Setup environment file
+- name: Setup .env file
+  shell: cp .env.example .env
+  args:
+    chdir: "/home/deploy/{{ domain }}"
+
+- name: Configure the .env file
   lineinfile:
-    path: /home/deploy/{{ domain }}.env
+    path: /home/deploy/{{ domain }}/.env
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
   with_items:
