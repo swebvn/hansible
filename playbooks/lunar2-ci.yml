@@ -1,0 +1,6 @@
+---
+- name: The Lunar2 CI playbook
+  hosts: all
+  become: true
+  become_method: sudo
+
