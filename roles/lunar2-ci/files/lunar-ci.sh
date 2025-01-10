@@ -57,6 +57,8 @@ deploy_code() {
         CI=1 pnpm install && pnpm run build
         php artisan optimize
         php artisan route:clear
+        php artisan filament:cache-components
+        php artisan icons:cache
         php artisan horizon:terminate
 
         echo 'Deployment complete.'
