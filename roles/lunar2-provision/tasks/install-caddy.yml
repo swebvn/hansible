@@ -24,15 +24,3 @@
   loop:
     - /etc/caddy/sites-available
     - /etc/caddy/sites-enabled
-
-- name: add default sites
-  copy:
-    src: files/default
-    dest: /etc/caddy/sites-available/default
-  ignore_errors: yes
-
-- name: create symlink
-  shell: ln -s /etc/caddy/sites-available/default /etc/caddy/sites-enabled/default
-  ignore_errors: yes
-
-
