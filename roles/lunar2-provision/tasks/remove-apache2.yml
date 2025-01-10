@@ -1,11 +1,5 @@
-- name: make sure apache2 not install
+- name: Make sure apache2 not install
   apt:
     name: apache2
     state: absent
-  ignore_errors: yes
-
-- name: Remove apache2
-  shell: |
-    sudo apt-get purge apache2 apache2-utils apache2.2-bin apache2-common
-    sudo apt-get autoremove
-    sudo apt-get autoclean
+    autoremove: yes

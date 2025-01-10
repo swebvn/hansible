@@ -1,18 +1,20 @@
 ---
-- import_tasks: base.yml
-  name: "Import base tasks"
+- import_tasks: remove-apache2.yml
+  name: "Remove Apache2"
+# - import_tasks: base.yml
+#   name: "Import base tasks"
 
-- import_tasks: install-php.yml
-  name: "Install PHP"
+# - import_tasks: install-php.yml
+#   name: "Install PHP"
 
-- import_tasks: install-caddy.yml
-  name: "Install Caddy"
+# - import_tasks: install-caddy.yml
+#   name: "Install Caddy"
 
-- import_tasks: install-node.yml
-  name: "Install Node"
+# - import_tasks: install-node.yml
+#   name: "Install Node"
 
-- import_tasks: install-redis.yml
-  name: "Install Redis"
+# - import_tasks: install-redis.yml
+#   name: "Install Redis"
 
 # - name: Install Zabbix
 #   ansible.builtin.import_tasks: install-zabbix.yml
