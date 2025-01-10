@@ -4,3 +4,5 @@
   become: true
   become_method: sudo
 
+  roles:
+    - lunar2-ci
