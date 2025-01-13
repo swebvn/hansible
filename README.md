@@ -22,6 +22,15 @@ ansible-playbook playbooks/lunar-artisan.yml -e "command='php artisan inspire'" 
 ```
 
 ## Migrate lunar server to v2
+*Remember change the inventory file to new server*
+
+Migrate lunar to v2 server
 ```bash
-ansible-playbook playbooks/migrate-lunar-v2.yml -i inventories/lunar.ini
+ansible-playbook playbooks/lunar2-migrate.yml -i lunar.ini
+```
+
+Setup the hub on new server, remember to point domain for each server, this can only run once.
+```bash
+export BUNNY_API_KEY=your_bunny_api_key
+ansible-playbook playbooks/lunar2-createhub-hub.yml -i lunar.ini -e "domain=s322.tdalunar.com"
 ```
