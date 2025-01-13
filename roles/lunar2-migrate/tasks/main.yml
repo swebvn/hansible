@@ -1,4 +1,12 @@
 ---
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - sqlite3
+    - sqlite3-tools
+
 - name: Install Caddy
   shell: |
     export DEBIAN_FRONTEND=noninteractive

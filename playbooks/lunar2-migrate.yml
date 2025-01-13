@@ -1,0 +1,8 @@
+---
+- name: Migrate old server to new lunar2 version
+  hosts: all
+  become: true
+  become_method: sudo
+
+  roles:
+    - lunar2-migrate
