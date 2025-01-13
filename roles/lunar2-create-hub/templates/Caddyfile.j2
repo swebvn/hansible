@@ -9,6 +9,14 @@
 
     encode zstd gzip
 
+    header {
+        -Server
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        X-Powered-By "Lucommerce"
+        X-XSS-Protection 1; mode=block
+    }
+
     php_fastcgi unix//run/php/php8.2-fpm.sock {
         resolve_root_symlink
     }
@@ -20,6 +28,14 @@ https:// {
     root * /home/deploy/{{ domain }}/public
 
     encode zstd gzip
+
+    header {
+        -Server
+        X-Content-Type-Options nosniff
+        X-Frame-Options SAMEORIGIN
+        X-Powered-By "Lucommerce"
+        X-XSS-Protection 1; mode=block
+    }
 
     php_fastcgi unix//run/php/php8.2-fpm.sock {
         resolve_root_symlink
