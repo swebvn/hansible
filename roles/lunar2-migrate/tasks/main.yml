@@ -31,3 +31,9 @@
   loop:
     - /etc/caddy/sites-available
     - /etc/caddy/sites-enabled
+
+- name: update www.conf
+  copy:
+    src: files/www.conf
+    dest: /etc/php/8.2/fpm/pool.d
+    force: true

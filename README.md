@@ -20,3 +20,8 @@ Example
 ```bash
 ansible-playbook playbooks/lunar-artisan.yml -e "command='php artisan inspire'" -i inventories/lunar.ini
 ```
+
+## Migrate lunar server to v2
+```bash
+ansible-playbook playbooks/migrate-lunar-v2.yml -i inventories/lunar.ini
+```
