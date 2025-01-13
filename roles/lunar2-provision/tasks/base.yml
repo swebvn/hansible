@@ -46,6 +46,8 @@
     - git
     - python3-pip
     - ufw
+    - sqlite3
+    - sqlite3-tools
 
 
 - name: Enable UFW (Uncomplicated Firewall)
