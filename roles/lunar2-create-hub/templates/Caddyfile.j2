@@ -25,6 +25,10 @@
 }
 
 https:// {
+    tls {
+        on_demand
+    }
+
     root * /home/deploy/{{ domain }}/public
 
     encode zstd gzip
