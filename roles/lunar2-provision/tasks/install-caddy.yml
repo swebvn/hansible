@@ -7,13 +7,13 @@
     curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list > /dev/null
     sudo apt update -y
     sudo apt install caddy -y
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Copy Caddyfile
   copy:
     src: files/Caddyfile
     dest: /etc/caddy/Caddyfile
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Ensure sites-enabled and sites-available directories exist
   file:
@@ -23,3 +23,6 @@
   loop:
     - /etc/caddy/sites-available
     - /etc/caddy/sites-enabled
+
+- name: Add caddy to deploy group
+  shell: usermod -aG deploy caddy

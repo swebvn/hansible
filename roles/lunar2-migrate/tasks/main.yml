@@ -33,6 +33,9 @@
     - /etc/caddy/sites-available
     - /etc/caddy/sites-enabled
 
+- name: Add caddy to deploy group
+  shell: usermod -aG deploy caddy
+
 - name: update www.conf
   copy:
     src: files/www.conf
