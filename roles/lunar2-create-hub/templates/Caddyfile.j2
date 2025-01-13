@@ -9,7 +9,7 @@
 
     encode zstd gzip
 
-    fast_cgi unix//run/php/php8.2-fpm.sock {
+    php_fastcgi unix//run/php/php8.2-fpm.sock {
         resolve_root_symlink
     }
 
@@ -21,7 +21,7 @@ https:// {
 
     encode zstd gzip
 
-    fast_cgi unix//run/php/php8.2-fpm.sock {
+    php_fastcgi unix//run/php/php8.2-fpm.sock {
         resolve_root_symlink
     }
 
