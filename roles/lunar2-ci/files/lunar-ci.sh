@@ -66,7 +66,7 @@ deploy_code() {
 
     systemctl restart php8.2-fpm
 
-    curl -s --location 'https://ping2.me/@daudau/sweb-stuff' --data-urlencode "message=$DOMAIN deployed!" > /dev/null
+    # curl -s --location 'https://ping2.me/@daudau/sweb-stuff' --data-urlencode "message=$DOMAIN deployed!" > /dev/null
 }
 
 main() {
