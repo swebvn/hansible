@@ -10,9 +10,9 @@ for dir in /home/*/domains/*/public_html; do
     fi
 
     # run the artisan command
-    su - $user -c "{
+    #su - $user -c "{
         cd $dir
         echo $dir
         $command
-    }"
+    #}"
 done

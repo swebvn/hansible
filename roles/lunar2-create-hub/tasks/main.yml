@@ -75,3 +75,18 @@
   args:
     chdir: "/etc/caddy"
   shell: caddy reload
+  ignore_errors: true
+
+- name: Restart php-fpm
+  service:
+    name: php8.2-fpm
+    state: restarted
+  ignore_errors: true
+
+- name: Setup schedule
+  cron:
+    name: "{{ domain }}-schedule"
+    minute: "*/1"
+    job: "cd /home/deploy/{{ domain }} && php artisan schedule:run >> /dev/null 2>&1"
+    user: deploy
+    state: present
