@@ -42,7 +42,7 @@ deploy_code() {
 
     su - "${DEPLOY_USER}" -c "
         cd ${WEBSITE_DIR}
-        GIT_SSH_COMMAND='ssh -i ${USER_DEPLOY_KEY}' git pull origin 2.x
+        GIT_SSH_COMMAND='ssh -i ${USER_DEPLOY_KEY} -o StrictHostKeyChecking=no' git pull origin 2.x
 
         if [ -f pnpm-lock.yaml ]; then
             git checkout pnpm-lock.yaml
