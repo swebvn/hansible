@@ -64,7 +64,6 @@ deploy_code() {
         php artisan filament:cache-components
         php artisan icons:cache
         php artisan horizon:terminate
-        php artisan tenants:cache-clear
 
         echo 'Deployment complete.'
     "
