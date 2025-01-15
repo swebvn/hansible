@@ -57,11 +57,14 @@ deploy_code() {
         composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
 
         CI=1 pnpm install && pnpm run build
+
+        php artisan tenants:migrate --force
         php artisan optimize
         php artisan route:clear
         php artisan filament:cache-components
         php artisan icons:cache
         php artisan horizon:terminate
+        php artisan tenants:cache-clear
 
         echo 'Deployment complete.'
     "
