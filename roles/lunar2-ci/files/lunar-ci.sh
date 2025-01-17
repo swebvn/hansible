@@ -56,7 +56,10 @@ deploy_code() {
 
         composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
 
-        CI=1 pnpm install && pnpm run build
+        if git diff --name-only HEAD@{1} HEAD | grep -qE 'package\.json|pnpm-lock\.yaml|\.js|\.css|\.blade\.php'; then
+            CI=1 pnpm install && pnpm run build
+            php artisan tenants:cache-clear
+        fi
 
         php artisan tenants:migrate --force
         php artisan optimize
