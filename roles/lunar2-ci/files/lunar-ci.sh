@@ -54,7 +54,9 @@ deploy_code() {
             git checkout composer.lock
         fi
 
-        composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
+        if git diff --name-only HEAD@{1} HEAD | grep -qE 'composer\.json|composer\.lock'; then
+            composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
+        fi
 
         if git diff --name-only HEAD@{1} HEAD | grep -qE 'package\.json|pnpm-lock\.yaml|\.js|\.css|\.blade\.php'; then
             CI=1 pnpm install && pnpm run build
