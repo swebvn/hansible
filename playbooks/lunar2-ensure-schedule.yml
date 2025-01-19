@@ -1,0 +1,26 @@
+---
+
+- name: Ensure schedule is setup on the server
+  hosts: all
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Find the hub domain on server
+      shell: |
+        ls /home/deploy | grep "tdalunar.com"
+      register: hub_domain
+      changed_when: false
+
+    - name: Debug the hub domain
+      debug:
+        msg: "{{ hub_domain.stdout_lines }}"
+
+    - name: Setup the schedule
+      cron:
+        name: "{{ hub_domain.stdout_lines[0] }}-schedule"
+        minute: "*/1"
+        user: deploy
+        job: "cd /home/deploy/{{ hub_domain.stdout_lines[0] }} && php artisan schedule:run >> /dev/null 2>&1"
+        state: present
+
