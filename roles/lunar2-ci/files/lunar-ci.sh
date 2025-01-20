@@ -64,7 +64,9 @@ deploy_code() {
         fi
 
         php artisan tenants:migrate --force
-        php artisan optimize
+        php artisan config:cache
+        php artisan event:cache
+        php artisan view:cache
         php artisan route:clear
         php artisan filament:cache-components
         php artisan icons:cache
