@@ -67,6 +67,7 @@ deploy_code() {
         php artisan config:cache
         php artisan event:cache
         php artisan view:cache
+        php artisan responsecache:clear
         php artisan route:clear
         php artisan filament:cache-components
         php artisan icons:cache
