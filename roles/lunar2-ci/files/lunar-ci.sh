@@ -63,6 +63,7 @@ deploy_code() {
             php artisan tenants:cache-clear
         fi
 
+        php artisan hub:migrate
         php artisan tenants:migrate --force
         php artisan config:cache
         php artisan event:cache
