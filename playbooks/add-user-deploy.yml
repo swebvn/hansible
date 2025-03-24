@@ -1,0 +1,35 @@
+---
+- name: "Add deploy user to server"
+  hosts: all
+  become: true
+  become_method: sudo
+
+  tasks:
+    - name: Create deploy user
+      user:
+        name: deploy
+        state: present
+        shell: /bin/bash
+        createhome: yes
+
+    - name: create folder .ssh
+      file:
+        path: /home/deploy/.ssh
+        state: directory
+        owner: deploy
+        group: deploy
+        mode: 0700
+
+    - name: copy authorized_keys to remote host
+      copy:
+        src: ../authorized_keys
+        dest: /home/deploy/.ssh/authorized_keys
+        owner: deploy
+        group: deploy
+        mode: 0600
+
+    - name: add permision sudo file
+      blockinfile:
+        path: /etc/sudoers
+        block: |
+          deploy ALL=(ALL) NOPASSWD: ALL
