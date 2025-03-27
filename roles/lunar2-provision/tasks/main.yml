@@ -17,8 +17,8 @@
 - import_tasks: install-redis.yml
   name: "Install Redis"
 
-# - import_tasks: install-zabbix.yml
-#   name: Install Zabbix
+- import_tasks: install-zabbix.yml
+  name: Install Zabbix
 
 
 
