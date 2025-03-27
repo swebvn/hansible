@@ -20,14 +20,14 @@
   tags:
     - zabbix
 
-- name: copy lld-disks.py
-  copy:
-    src: templates/lld-disks.py
-    dest: /usr/local/bin/lld-disks.py
-    owner: zabbix
-    group: zabbix
-  tags:
-    - zabbix
+# - name: copy lld-disks.py
+#   copy:
+#     src: templates/lld-disks.py
+#     dest: /usr/local/bin/lld-disks.py
+#     owner: zabbix
+#     group: zabbix
+#   tags:
+#     - zabbix
 
 - name: copy zabbix-agent config
   copy:
