@@ -16,7 +16,7 @@
   git:
     repo: 'git@github.com:swebvn/lucommerce.git'
     dest: "/home/deploy/{{ domain }}"
-    version: '2.x'
+    version: 'main'
     force: true
     depth: 1
   environment:
