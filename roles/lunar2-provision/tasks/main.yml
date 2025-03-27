@@ -17,8 +17,8 @@
 - import_tasks: install-redis.yml
   name: "Install Redis"
 
-- name: Install Zabbix
-  ansible.builtin.import_tasks: install-zabbix.yml
+- import_tasks: install-zabbix.yml
+  name: Install Zabbix
 
 
 
