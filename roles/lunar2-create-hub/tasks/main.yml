@@ -74,7 +74,7 @@
 - name: Reload Caddy
   args:
     chdir: "/etc/caddy"
-  shell: caddy reload
+  shell: service caddy restart
   ignore_errors: true
 
 - name: Restart php-fpm
