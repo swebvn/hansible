@@ -1,0 +1,38 @@
+---
+- name: Update Caddy service to auto-restart on failure
+  hosts: all  # You can replace 'all' with a specific group from your inventory
+  become: true  # Enables sudo privileges
+  become_method: sudo  # Consistent with your other playbooks
+
+  tasks:
+    - name: Ensure override directory exists for caddy.service
+      file:
+        path: /etc/systemd/system/caddy.service.d
+        state: directory
+        mode: '0755'
+
+    - name: Add restart settings to caddy.service override
+      copy:
+        dest: /etc/systemd/system/caddy.service.d/restart.conf
+        content: |
+          [Service]
+          Restart=on-failure
+          RestartSec=30s
+        mode: '0644'
+      register: service_override
+
+    - name: Reload systemd daemon if service file changed
+      command: systemctl daemon-reload
+      when: service_override.changed
+
+    - name: Restart caddy service to apply changes
+      systemd:
+        name: caddy
+        state: restarted
+      when: service_override.changed
+
+    - name: Ensure caddy service is enabled and running
+      systemd:
+        name: caddy
+        enabled: yes
+        state: started
