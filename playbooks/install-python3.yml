@@ -3,7 +3,7 @@
 - name: Install Python 3.10 on Centos 6 servers
   hosts: all
   strategy: free
-  become: yes
+  become: true
   become_method: sudo
 
   roles:

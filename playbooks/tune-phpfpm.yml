@@ -2,7 +2,7 @@
 - name: Tuning php-fpm
   hosts: all
   strategy: free
-  become: yes
+  become: true
   become_method: sudo
 
   tasks:
