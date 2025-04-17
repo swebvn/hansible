@@ -3,7 +3,7 @@
 - name: Update WordPress plugin
   hosts: all
   strategy: free
-  become: yes
+  become: true
   become_method: sudo
 
   roles:
