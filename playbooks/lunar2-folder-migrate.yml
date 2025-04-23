@@ -1,0 +1,8 @@
+---
+- name: Migrate Lunar web folders to lucommerce
+  hosts: all
+  become: true
+  become_method: sudo
+
+  roles:
+    - lunar2-folder-migrate

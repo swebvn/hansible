@@ -6,16 +6,16 @@
 - name: Chmod deploy folder
   shell: chmod 755 /home/deploy
 
-- name: Create directory for the domain
+- name: Create lucommerce directory
   file:
-    path: "/home/deploy/{{ domain }}"
+    path: "/home/deploy/lucommerce"
     state: directory
     mode: '0755'
 
 - name: Clone the repository
   git:
     repo: 'git@github.com:swebvn/lucommerce.git'
-    dest: "/home/deploy/{{ domain }}"
+    dest: "/home/deploy/lucommerce"
     version: 'main'
     force: true
     depth: 1
@@ -25,11 +25,11 @@
 - name: Setup .env file
   shell: cp .env.example .env
   args:
-    chdir: "/home/deploy/{{ domain }}"
+    chdir: "/home/deploy/lucommerce"
 
 - name: Configure the .env file
   lineinfile:
-    path: /home/deploy/{{ domain }}/.env
+    path: /home/deploy/lucommerce/.env
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
   with_items:
@@ -42,7 +42,7 @@
 
 - name: Basic Setup
   args:
-    chdir: "/home/deploy/{{ domain }}"
+    chdir: "/home/deploy/lucommerce"
   shell: |
     composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
     php artisan key:generate
@@ -52,17 +52,17 @@
 
 - name: Chown the directory
   shell: |
-    chown -R deploy:deploy /home/deploy/{{ domain }}
+    chown -R deploy:deploy /home/deploy/lucommerce
   ignore_errors: true
 
 - name: Setup systemd for Horizon
   template:
     src: templates/horizon.service.j2
-    dest: "/etc/systemd/system/{{ domain }}-horizon.service"
+    dest: "/etc/systemd/system/lucommerce-horizon.service"
 
 - name: Start the Horizon service
   systemd:
-    name: "{{ domain }}-horizon"
+    name: "lucommerce-horizon"
     state: started
     enabled: yes
 
@@ -85,8 +85,8 @@
 
 - name: Setup schedule
   cron:
-    name: "{{ domain }}-schedule"
+    name: "lucommerce-schedule"
     minute: "*/1"
-    job: "cd /home/deploy/{{ domain }} && php artisan schedule:run >> /dev/null 2>&1"
+    job: "cd /home/deploy/lucommerce && php artisan schedule:run >> /dev/null 2>&1"
     user: deploy
     state: present

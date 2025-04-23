@@ -32,13 +32,19 @@ setup_deploy_key() {
 
 # Run deploy script
 deploy_code() {
-    WEBSITE_DIR=$(find /home/deploy/ -maxdepth 1 -type d -name "*.tdalunar.com" | head -n 1)
+    WEBSITE_DIR="/home/deploy/lucommerce"
     if [ ! -d "${WEBSITE_DIR}" ]; then
         echo "Website directory not found."
         exit 1
     fi
 
-    DOMAIN=$(basename "${WEBSITE_DIR}")
+    # Try to find the domain from .env file
+    if [ -f "${WEBSITE_DIR}/.env" ]; then
+        DOMAIN=$(grep "^APP_URL=" "${WEBSITE_DIR}/.env" | cut -d'/' -f3 | cut -d':' -f1)
+    else
+        # Fallback to hostname if .env not found
+        DOMAIN=$(hostname)
+    fi
 
     su - "${DEPLOY_USER}" -c "
         cd ${WEBSITE_DIR}

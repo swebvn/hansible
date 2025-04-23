@@ -1,15 +1,11 @@
-# loop thu all the directory in format
+# Execute artisan command in the lucommerce directory
 command=$1
 
-for dir in /home/deploy/*.tdalunar.com; do
-    if [ ! -f "$dir/.env" ]; then
-        continue
-    fi
-
+if [ -f "/home/deploy/lucommerce/.env" ]; then
     # run the artisan command
     su - deploy -c "{
-        cd $dir
-        echo $dir
+        cd /home/deploy/lucommerce
+        echo /home/deploy/lucommerce
         $command
     }"
-done
+fi

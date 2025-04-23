@@ -1,0 +1,87 @@
+---
+# Tasks for lunar2-folder-migrate role
+- name: Find the current hub domain on server
+  shell: |
+    ls /home/deploy | grep "tdalunar.com" | head -n 1
+  register: current_domain
+  changed_when: false
+
+- name: Debug the current domain
+  debug:
+    msg: "Current domain folder: {{ current_domain.stdout }}"
+  when: current_domain.stdout != ""
+
+- name: Check if lucommerce directory already exists
+  stat:
+    path: /home/deploy/lucommerce
+  register: lucommerce_dir
+
+- name: Create lucommerce directory if it doesn't exist
+  file:
+    path: /home/deploy/lucommerce
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: '0755'
+  when: not lucommerce_dir.stat.exists and current_domain.stdout == ""
+
+- name: Stop the current Horizon service
+  systemd:
+    name: "{{ current_domain.stdout }}-horizon"
+    state: stopped
+  when: current_domain.stdout != ""
+  ignore_errors: true
+
+- name: Move the entire folder to lucommerce
+  shell: |
+    mv /home/deploy/{{ current_domain.stdout }} /home/deploy/lucommerce
+    chown -R deploy:deploy /home/deploy/lucommerce
+  when: current_domain.stdout != ""
+
+- name: Create new Horizon service file
+  template:
+    src: templates/lucommerce-horizon.service.j2
+    dest: /etc/systemd/system/lucommerce-horizon.service
+    mode: '0644'
+
+- name: Create Caddyfile for lucommerce
+  template:
+    src: templates/lucommerce-Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    mode: '0644'
+  vars:
+    domain: "{{ current_domain.stdout }}"
+
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: yes
+
+- name: Start the new Horizon service
+  systemd:
+    name: lucommerce-horizon
+    state: started
+    enabled: yes
+
+- name: Reload Caddy
+  shell: service caddy restart
+  ignore_errors: true
+
+- name: Restart php-fpm
+  service:
+    name: php8.2-fpm
+    state: restarted
+  ignore_errors: true
+
+- name: Update schedule in crontab
+  cron:
+    name: "{{ current_domain.stdout }}-schedule"
+    state: absent
+  when: current_domain.stdout != ""
+
+- name: Setup new schedule
+  cron:
+    name: "lucommerce-schedule"
+    minute: "*/1"
+    user: deploy
+    job: "cd /home/deploy/lucommerce && php artisan schedule:run >> /dev/null 2>&1"
+    state: present
