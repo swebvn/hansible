@@ -52,6 +52,12 @@
   vars:
     domain: "{{ current_domain.stdout }}"
 
+- name: Run config:cache for Laravel
+  shell: |
+    cd /home/deploy/lucommerce
+    sudo -u deploy php artisan config:cache
+  ignore_errors: true
+
 - name: Reload systemd daemon
   systemd:
     daemon_reload: yes
