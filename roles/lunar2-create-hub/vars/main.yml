@@ -1,4 +1,5 @@
 ---
 bunny_api_key: "{{ lookup('env', 'BUNNY_API_KEY') }}"
-bunny_storage_zone: lunar-merch-central
-bunny_pull_zone: https://lunar-merch.b-cdn.net
+bunny_storage_zone: lunar-merch-2
+bunny_pull_zone: https://lunar-merch-2.b-cdn.net
+bunny_region: "ny"

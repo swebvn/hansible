@@ -39,6 +39,7 @@
     - { key: "BUNNY_API_KEY", value: "{{ bunny_api_key }}" }
     - { key: "BUNNY_STORAGE_ZONE", value: "{{ bunny_storage_zone }}" }
     - { key: "BUNNY_PULL_ZONE", value: "{{ bunny_pull_zone }}" }
+    - { key: "BUNNY_REGION", value: "{{ bunny_region }}" }
 
 - name: Basic Setup
   args:
