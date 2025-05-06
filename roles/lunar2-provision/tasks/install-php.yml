@@ -30,14 +30,14 @@
 
 - name: pecl install php-redis
   shell: sudo echo -e "\n\n\n\n\n\n" | sudo pecl install redis
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: add redis.ini
   shell: sudo echo 'extension="/usr/lib/php/20220829/redis.so"' > /etc/php/8.2/mods-available/redis.ini
 
 - name: symbolic link redis extension
   shell: sudo ln -s /etc/php/8.2/mods-available/redis.ini /etc/php/8.2/cli/conf.d/20-redis.ini && sudo ln -s /etc/php/8.2/mods-available/redis.ini /etc/php/8.2/fpm/conf.d/redis.ini
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: update www.conf
   copy:
