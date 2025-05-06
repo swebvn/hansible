@@ -1,9 +1,0 @@
----
-- name: Run artisan command on Lunar web
-  hosts: all
-  become: true
-  become_method: sudo
-  strategy: free
-
-  roles:
-    - lunar-artisan

@@ -1,8 +1,0 @@
----
-- name: Lunar continious deployment
-  hosts: all
-  become: true
-  become_method: sudo
-
-  roles:
-    - lunar-ci
