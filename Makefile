@@ -14,3 +14,7 @@ lunar2-provision:
 setup-prod:
 	cp ansible.cfg.prod ansible.cfg
 	sed -i "s|\$WORKSPACE|$WORKSPACE|g" ansible.cfg
+
+setup-prod-python3:
+	cp ansible.cfg.prod.python3 ansible.cfg
+	sed -i "s|\$WORKSPACE|$WORKSPACE|g" ansible.cfg
