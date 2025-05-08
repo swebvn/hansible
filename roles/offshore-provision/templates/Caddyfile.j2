@@ -3,7 +3,6 @@
 # Define reusable reverse proxy snippet
 (reverse_proxy_common) {
     header_up Host {http.request.host}
-    header_up X-Forwarded-For {remote}
     header_up X-Forwarded-Proto https
     header_up X-Real-IP {remote_host}
     transport http {
