@@ -1,0 +1,9 @@
+[defaults]
+roles_path=$WORKSPACE/hansible/roles
+private_key_file=/opt/key_deploy/id_rsa_deploy
+host_key_checking=False
+forks=20
+interpreter_python=/usr/bin/python3
+
+[ssh_connection]
+ssh_args = -o ServerAliveInterval=60 -o ControlMaster=auto -o ControlPersist=60s
