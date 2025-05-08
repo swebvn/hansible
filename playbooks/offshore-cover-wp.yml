@@ -1,0 +1,37 @@
+---
+# Playbook to add a new Caddy site configuration for proxying WordPress sites
+# Usage: ansible-playbook playbooks/offshore-cover-wp.yml -i inventories/offshore.ini -e "domain=example.com ip=123.456.789.0"
+
+- name: Add site configuration to Caddy sites-enabled folder
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Validate required parameters
+      fail:
+        msg: "Required parameter '{{ item.name }}' is missing. Please provide -e '{{ item.name }}={{ item.example }}'"
+      when: item.var is not defined or item.var | length == 0
+      with_items:
+        - { name: 'domain', var: '{{ domain | default("") }}', example: 'example.com' }
+        - { name: 'ip', var: '{{ ip | default("") }}', example: '123.456.789.0' }
+
+    - name: Create site configuration file
+      copy:
+        content: |
+          https://{{ domain }} {
+              reverse_proxy https://{{ ip }} {
+                  import reverse_proxy_common
+              }
+              header -Server
+          }
+        dest: "/etc/caddy/sites-enabled/{{ domain }}.conf"
+        owner: caddy
+        group: caddy
+        mode: '0644'
+      register: config_created
+
+    - name: Restart Caddy service if configuration was added
+      systemd:
+        name: caddy
+        state: restarted
+      when: config_created.changed
