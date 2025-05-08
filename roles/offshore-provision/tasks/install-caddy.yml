@@ -1,0 +1,71 @@
+---
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install required packages for apt over HTTPS
+  apt:
+    name:
+      - apt-transport-https
+      - debian-keyring
+      - debian-archive-keyring
+      - curl
+      - gnupg
+    state: present
+
+- name: Add Caddy official GPG key
+  apt_key:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    state: present
+
+- name: Add Caddy repository
+  apt_repository:
+    repo: deb [arch=amd64] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
+    state: present
+    filename: caddy-stable
+
+- name: Install Caddy
+  apt:
+    name: caddy
+    state: present
+    update_cache: yes
+
+- name: Create Caddy log directory
+  file:
+    path: /var/log/caddy
+    state: directory
+    owner: caddy
+    group: caddy
+    mode: '0755'
+
+- name: Create sites-enabled directory for Caddy
+  file:
+    path: /etc/caddy/sites-enabled
+    state: directory
+    owner: caddy
+    group: caddy
+    mode: '0755'
+
+- name: Deploy Caddyfile
+  template:
+    src: Caddyfile.j2
+    dest: /etc/caddy/Caddyfile
+    owner: caddy
+    group: caddy
+    mode: '0644'
+  notify: Restart Caddy
+
+- name: Deploy sample site configuration
+  template:
+    src: sample-site.conf.j2
+    dest: /etc/caddy/sample-site.conf
+    owner: caddy
+    group: caddy
+    mode: '0644'
+
+- name: Ensure Caddy service is running and enabled at boot
+  systemd:
+    name: caddy
+    state: started
+    enabled: yes

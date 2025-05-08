@@ -1,0 +1,6 @@
+---
+- name: Provision offshore server with Caddy and UFW firewall
+  hosts: "{{ target | default('offshore') }}"
+  become: true
+  roles:
+    - role: offshore-provision

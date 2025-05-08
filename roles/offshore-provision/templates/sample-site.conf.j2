@@ -1,0 +1,22 @@
+# Example site configuration
+# Copy this file to create new site configurations
+
+example.com {
+    # Use the common reverse proxy settings
+    import reverse_proxy_common
+
+    # Reverse proxy to backend
+    reverse_proxy 127.0.0.1:8080
+
+    # TLS with automatic certificates
+    tls {
+        # Automatic HTTPS with Let's Encrypt
+        on_demand
+    }
+
+    # Logging configuration
+    log {
+        output file /var/log/caddy/example.com.log
+        format json
+    }
+}

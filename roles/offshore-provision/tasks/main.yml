@@ -1,0 +1,6 @@
+---
+- name: Import install Caddy tasks
+  import_tasks: install-caddy.yml
+
+- name: Import UFW tasks
+  import_tasks: ufw.yml
