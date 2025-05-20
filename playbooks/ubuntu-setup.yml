@@ -1,5 +1,6 @@
 ---
 - name: Setup PHP 8.1, MySQL 8, Caddy, WP CLI and FTP (vsftpd)
+  hosts: all
   become: yes
 
   tasks:
