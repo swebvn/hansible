@@ -1,24 +1,26 @@
 - hosts: all
   become: yes
+
   vars:
-    site_domain: "{{ domain }}"  # Retrieved from the variable passed via command line
-
-    site_user: "{{ site_domain.split('.')[0] ~ '_' ~ (99999 | random) }}"
-    site_pass: "{{ lookup('password', '/dev/null length=16 chars=ascii_letters') }}"
-
+    site_domain: "{{ domain }}" 
+    site_user: "{{ site_domain.split('.')[0] }}"
     username: "{{ site_user }}"
+    site_pass: "{{ lookup('password', '/tmp/{{ site_user }}_passfile length=16 chars=ascii_letters') }}"
     site_root: "/home/{{ site_user }}/{{ site_domain }}"
     db_name: "{{ site_user }}"
     db_user: "{{ site_user }}"
     db_password: "{{ site_pass }}"
 
-  tasks:
-    - name: Display generated credentials
-      debug:
-        msg:
-          - "Generated system username: {{ site_user }}"
-          - "Generated system password: {{ site_pass }}"
-          - "Configured domain: {{ site_domain }}"
-
   roles:
     - roles/wordpress2-install
+
+  tasks:
+    - name: Show deployment information
+      debug:
+        msg: |
+          ✅ WordPress site deployed:
+          🔸 Domain: {{ site_domain }}
+          🔸 User: {{ site_user }}
+          🔸 Password: {{ site_pass }}
+          🔸 Site Root: {{ site_root }}
+          🔸 Database: {{ db_name }}
