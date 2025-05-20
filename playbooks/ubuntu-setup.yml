@@ -1,0 +1,116 @@
+---
+- name: Setup PHP 8.1, MySQL 8, Caddy, WP CLI and FTP (vsftpd)
+  hosts: webservers
+  become: yes
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install PHP 8.1 and common extensions
+      apt:
+        name:
+          - php8.1
+          - php8.1-fpm
+          - php8.1-mysql
+          - php8.1-curl
+          - php8.1-gd
+          - php8.1-mbstring
+          - php8.1-xml
+          - php8.1-zip
+          - unzip
+          - curl
+        state: present
+
+    - name: Install MySQL server
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Add Caddy GPG key
+      ansible.builtin.shell: |
+        curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | \
+        gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+
+    - name: Add Caddy apt repository
+      ansible.builtin.shell: |
+        curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
+        tee /etc/apt/sources.list.d/caddy-stable.list
+      args:
+        creates: /etc/apt/sources.list.d/caddy-stable.list
+
+    - name: Update apt cache (after adding Caddy repo)
+      apt:
+        update_cache: yes
+
+    - name: Install Caddy
+      apt:
+        name: caddy
+        state: present
+
+    - name: Download WP-CLI Phar
+      get_url:
+        url: https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        dest: /tmp/wp-cli.phar
+        mode: '0755'
+
+    - name: Move WP-CLI to /usr/local/bin
+      copy:
+        src: /tmp/wp-cli.phar
+        dest: /usr/local/bin/wp
+        remote_src: yes
+        mode: '0755'
+
+    - name: Check WP CLI version
+      command: wp --info
+      register: wp_cli_output
+      changed_when: false
+
+    - name: Show WP CLI info
+      debug:
+        var: wp_cli_output.stdout
+
+    # ---  FTP (vsftpd) ---
+    - name: Install vsftpd package
+      apt:
+        name: vsftpd
+        state: present
+    
+    - name: Check if vsftpd.conf.bak exists
+      stat:
+        path: /etc/vsftpd.conf.bak
+      register: vsftpd_backup
+
+    - name: Backup vsftpd.conf if not already backed up
+      copy:
+        src: /etc/vsftpd.conf
+        dest: /etc/vsftpd.conf.bak
+        remote_src: yes
+        backup: yes
+      when: not vsftpd_backup.stat.exists
+
+
+    - name: Configure vsftpd
+      copy:
+        dest: /etc/vsftpd.conf
+        content: |
+          listen=YES
+          listen_ipv6=NO
+          anonymous_enable=NO
+          local_enable=YES
+          write_enable=YES
+          chroot_local_user=YES
+          allow_writeable_chroot=YES
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Restart vsftpd service
+      systemd:
+        name: vsftpd
+        state: restarted
+        enabled: yes

@@ -1,0 +1,24 @@
+[{{ username }}]
+
+user = {{ username }}
+group = {{ username }}
+
+listen = /run/php/php8.1-fpm-{{ username }}.sock
+listen.owner = {{ username }}
+listen.group = www-data
+listen.mode = 0660
+
+access.log = /var/log/php8.1-fpm-{{ username }}.access.log
+php_admin_value[error_log] = /var/log/php8.1-fpm-{{ username }}.error.log
+php_admin_flag[log_errors] = on
+
+pm = ondemand
+pm.max_children = 5
+pm.process_idle_timeout = 10s
+pm.max_requests = 500
+
+chdir = /
+
+php_admin_value[open_basedir] = /home/{{ username }}/{{ site_domain }}:/tmp
+php_admin_value[upload_tmp_dir] = /home/{{ username }}/tmp
+php_admin_value[session.save_path] = /home/{{ username }}/tmp

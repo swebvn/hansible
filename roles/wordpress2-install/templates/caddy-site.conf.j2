@@ -1,0 +1,6 @@
+{{ site_domain }} {
+    root * /home/{{ username }}/{{ site_domain }}
+    encode gzip
+    php_fastcgi unix//run/php/php8.1-fpm-{{ username }}.sock
+    file_server
+}

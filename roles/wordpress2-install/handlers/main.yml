@@ -1,0 +1,9 @@
+- name: Restart PHP-FPM
+  service:
+    name: php8.1-fpm
+    state: restarted
+
+- name: Reload Caddy
+  service:
+    name: caddy
+    state: reloaded
