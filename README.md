@@ -34,3 +34,23 @@ Setup the hub on new server, remember to point domain for each server, this can 
 export BUNNY_API_KEY=your_bunny_api_key
 ansible-playbook playbooks/lunar2-createhub-hub.yml -i lunar.ini -e "domain=s322.tdalunar.com"
 ```
+
+
+## Setup Ubuntu server and services for Wordpress sites
+```bash
+ansible-playbook -i inventories/wp-ubuntu.ini playbooks/ncq-setup-ubuntu.yml --ask-become-pass
+```
+
+## Setup wordpress sites and install plugins
+```bash
+ansible-playbook -i inventories/wp-ubuntu.ini playbooks/ncq-install-wp.yml --ask-become-pass
+```
+
+## Server infor
+```
+user: username
+password FTP: site_pass
+user database: site_user
+password user database: site_pass
+DB name: site_user
+```

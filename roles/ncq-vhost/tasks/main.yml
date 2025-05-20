@@ -1,0 +1,134 @@
+- name: Create system user
+  user:
+    name: "{{ site_user }}"
+    shell: /bin/bash
+    create_home: yes
+
+- name: Create website and tmp directory
+  file:
+    path: "/home/{{ username }}/{{ item }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+  loop:
+    - tmp
+    - "{{ site_domain }}"
+
+- name: Ensure PHP-FPM pool config exists
+  template:
+    src: php-fpm-pool.conf.j2
+    dest: "/etc/php/8.1/fpm/pool.d/{{ username }}.conf"
+    mode: '0644'
+  notify: Restart PHP-FPM
+
+- name: Create MySQL database and user using shell
+  become: true
+  shell: |
+    mysql -u root <<EOF
+    CREATE DATABASE IF NOT EXISTS {{ db_name }} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CREATE USER IF NOT EXISTS '{{ db_user }}'@'localhost' IDENTIFIED BY '{{ db_password }}';
+    GRANT ALL PRIVILEGES ON {{ db_name }}.* TO '{{ db_user }}'@'localhost';
+    FLUSH PRIVILEGES;
+    EOF
+
+- name: Ensure /etc/caddy/sites directory exists
+  file:
+    path: /etc/caddy/sites
+    state: directory
+    mode: '0755'
+
+- name: Configure Caddy site
+  template:
+    src: caddy-site.conf.j2
+    dest: "/etc/caddy/sites/{{ site_domain }}.conf"
+    mode: '0644'
+  notify: Reload Caddy
+
+- name: Link site config to Caddyfile (optional if you use includes)
+  lineinfile:
+    path: /etc/caddy/Caddyfile
+    line: "import sites/{{ site_domain }}.conf"
+    create: yes
+    insertafter: EOF
+    state: present
+
+- name: Download latest WordPress
+  become: true
+  command: wp core download --path=/home/{{ username }}/{{ site_domain }} --allow-root
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+
+- name: Create wp-config.php
+  become: true
+  command: >
+    wp config create
+    --dbname={{ db_name }}
+    --dbuser={{ db_user }}
+    --dbpass={{ db_password }}
+    --dbhost=localhost
+    --skip-check
+    --allow-root
+    --path=/home/{{ username }}/{{ site_domain }}
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+
+- name: Install WordPress
+  become: true
+  command: >
+    wp core install
+    --url="https://{{ site_domain }}"
+    --title="Demo Site"
+    --admin_user={{username}}
+    --admin_password={{site_pass}}
+    --admin_email="admin@gmail.com"
+    --allow-root
+    --path=/home/{{ username }}/{{ site_domain }}
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+
+- name: Download and install all-in-one-wp-migration-url-extension plugin
+  become: true
+  shell: |
+    cd /home/{{ username }}/{{ site_domain }}
+    wget -q http://nguyencongquyen.com/wp/all-in-one-wp-migration-url-extension.zip
+    wp plugin install all-in-one-wp-migration-url-extension.zip --activate --allow-root
+  args:
+    creates: "/home/{{ username }}/{{ site_domain }}/wp-content/plugins/all-in-one-wp-migration-url-extension"
+
+- name: Download and install all-in-one-wp-migration plugin
+  become: true
+  shell: |
+    cd /home/{{ username }}/{{ site_domain }}
+    wget -q http://nguyencongquyen.com/wp/all-in-one-wp-migration.7.38.zip
+    wp plugin install all-in-one-wp-migration.7.38.zip --activate --allow-root
+  args:
+    creates: "/home/{{ username }}/{{ site_domain }}/wp-content/plugins/all-in-one-wp-migration"
+
+- name: Set permissions for wp-content
+  file:
+    path: "/home/{{ username }}/{{ site_domain }}/wp-content"
+    state: directory
+    recurse: yes
+    owner: "{{ username }}"
+    group: www-data
+    mode: '0775'
+
+- name: Allow access into user home directory
+  file:
+    path: "/home/{{ username }}"
+    mode: '0751'
+
+- name: Set ownership for WordPress directory
+  file:
+    path: "/home/{{ username }}/{{ site_domain }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+    state: directory
+    
+- name: Set password for FTP user
+  become: true
+  user:
+    name: "{{ site_user }}"
+    password: "{{ site_pass | password_hash('sha512') }}"

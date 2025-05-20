@@ -1,0 +1,23 @@
+- hosts: webservers
+  become: yes
+  vars_prompt:
+    - name: site_user
+      prompt: "Enter system username for the WordPress site"
+      private: no
+    - name: site_pass
+      prompt: "Enter password for the system user"
+      private: yes
+    - name: site_domain
+      prompt: "Enter domain (e.g., example.com)"
+      private: no
+    
+
+  vars:
+    username: "{{ site_user }}"  # Add this line to map site_user to username
+    site_root: "/home/{{ site_user }}/{{ site_domain }}"
+    db_name: "{{ site_user }}"
+    db_user: "{{ site_user }}"
+    db_password: "{{ site_pass }}"
+
+  roles:
+    - roles/ncq-vhost
