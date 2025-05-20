@@ -38,12 +38,12 @@ ansible-playbook playbooks/lunar2-createhub-hub.yml -i lunar.ini -e "domain=s322
 
 ## Setup Ubuntu server and services for Wordpress sites
 ```bash
-ansible-playbook -i inventories/wp-ubuntu.ini playbooks/ncq-setup-ubuntu.yml --ask-become-pass
+ansible-playbook -i inventories/wordpress2.ini playbooks/ubuntu-setup.yml --ask-become-pass
 ```
 
 ## Setup wordpress sites and install plugins
 ```bash
-ansible-playbook -i inventories/wp-ubuntu.ini playbooks/ncq-install-wp.yml --ask-become-pass
+ansible-playbook -i inventories/wordpress2.ini playbooks/wordpress2-install.yml --ask-become-pass
 ```
 
 ## Server infor

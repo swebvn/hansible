@@ -87,23 +87,37 @@
   environment:
     PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
 
-- name: Download and install all-in-one-wp-migration-url-extension plugin
+- name: Copy all-in-one-wp-migration-url-extension plugin to server
+  become: true
+  copy:
+    src: all-in-one-wp-migration-url-extension.zip
+    dest: /home/{{ username }}/{{ site_domain }}/
+    mode: '0644'
+
+- name: Install all-in-one-wp-migration-url-extension plugin
   become: true
   shell: |
     cd /home/{{ username }}/{{ site_domain }}
-    wget -q http://nguyencongquyen.com/wp/all-in-one-wp-migration-url-extension.zip
     wp plugin install all-in-one-wp-migration-url-extension.zip --activate --allow-root
   args:
     creates: "/home/{{ username }}/{{ site_domain }}/wp-content/plugins/all-in-one-wp-migration-url-extension"
 
-- name: Download and install all-in-one-wp-migration plugin
+
+- name: Copy all-in-one-wp-migration plugin to server
+  become: true
+  copy:
+    src: all-in-one-wp-migration.7.38.zip
+    dest: /home/{{ username }}/{{ site_domain }}/
+    mode: '0644'
+
+- name: Install all-in-one-wp-migration plugin
   become: true
   shell: |
     cd /home/{{ username }}/{{ site_domain }}
-    wget -q http://nguyencongquyen.com/wp/all-in-one-wp-migration.7.38.zip
     wp plugin install all-in-one-wp-migration.7.38.zip --activate --allow-root
   args:
     creates: "/home/{{ username }}/{{ site_domain }}/wp-content/plugins/all-in-one-wp-migration"
+
 
 - name: Set permissions for wp-content
   file:
@@ -126,7 +140,7 @@
     group: "{{ username }}"
     recurse: yes
     state: directory
-    
+
 - name: Set password for FTP user
   become: true
   user:

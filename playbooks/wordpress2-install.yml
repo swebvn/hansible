@@ -20,4 +20,4 @@
     db_password: "{{ site_pass }}"
 
   roles:
-    - roles/ncq-vhost
+    - roles/wordpress2-install
