@@ -1,5 +1,4 @@
-- hosts: webservers
-  become: yes
+- become: yes
   vars:
     site_domain: "{{ domain }}"  # Retrieved from the variable passed via command line
 
