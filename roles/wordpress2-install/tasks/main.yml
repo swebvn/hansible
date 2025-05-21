@@ -149,38 +149,39 @@
 
 
 # Add the backup restoration task
-- name: Backup restoration tasks
-  block:
-    - name: Create ai1wm-backups directory
-      become: true
-      file:
-        path: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups"
-        state: directory
-        owner: "{{ username }}"
-        group: "{{ username }}"
-        mode: '0755'
+- name: Create ai1wm-backups directory
+  become: true
+  file:
+    path: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
+  when: source_restore_url is defined
 
-    - name: Download backup file
-      become: true
-      get_url:
-        url: "{{ source_restore_url | default('https://tda4-gmc.tda-demo.com/wp-content/ai1wm-backups/tda4-gmc.tda-demo.com-20250512-034930-uw4gsh.wpress') }}"
-        dest: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups/{{ backup_file_name | default('backup.wpress') }}"
-        mode: '0644'
+- name: Download backup file
+  become: true
+  get_url:
+    url: "{{ source_restore_url | default('https://tda4-gmc.tda-demo.com/wp-content/ai1wm-backups/tda4-gmc.tda-demo.com-20250512-034930-uw4gsh.wpress') }}"
+    dest: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups/{{ backup_file_name | default('backup.wpress') }}"
+    mode: '0644'
+  when: source_restore_url is defined
 
-    - name: Set ownership of backup file
-      become: true
-      file:
-        path: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups"
-        owner: "{{ username }}"
-        group: "{{ username }}"
-        recurse: yes
-        state: directory
+- name: Set ownership of backup file
+  become: true
+  file:
+    path: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes
+    state: directory
+  when: source_restore_url is defined
 
-    - name: Restore backup using All-in-One WP Migration
-      become: true
-      shell: >
-        sudo -u {{ username }} wp ai1wm restore {{ backup_file_name | default('backup.wpress') }} --yes
-        --path=/home/{{ username }}/{{ site_domain }}
-      environment:
-        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
+- name: Restore backup using All-in-One WP Migration
+  become: true
+  shell: >
+    sudo -u {{ username }} wp ai1wm restore {{ backup_file_name | default('backup.wpress') }} --yes
+    --path=/home/{{ username }}/{{ site_domain }}
+  environment:
+    PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
   when: source_restore_url is defined
