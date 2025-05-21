@@ -177,7 +177,6 @@
 
 - name: Restore backup using All-in-One WP Migration
   become: true
-  become_user: "{{ username }}"
   command: >
     wp ai1wm restore {{ backup_file_name | default('backup.wpress') }} --yes
     --path=/home/{{ username }}/{{ site_domain }}
