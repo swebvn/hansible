@@ -177,5 +177,10 @@
         state: directory
 
     - name: Restore backup using All-in-One WP Migration
-      # (thêm task restore backup ở đây, ví dụ command hoặc shell)
+      become: true
+      shell: >
+        sudo -u {{ username }} wp ai1wm restore {{ backup_file_name | default('backup.wpress') }} --yes
+        --path=/home/{{ username }}/{{ site_domain }}
+      environment:
+        PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
   when: source_restore_url is defined
