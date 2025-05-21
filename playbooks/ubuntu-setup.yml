@@ -126,20 +126,27 @@
           - php8.1-bcmath
         state: present
 
-    - name: Download phpMyAdmin
+    - name: Download phpMyAdmin latest version
       get_url:
         url: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
         dest: /tmp/phpmyadmin.tar.gz
+        mode: '0644'
+
+    - name: Remove old phpMyAdmin folder if exists
+      file:
+        path: /usr/share/phpmyadmin
+        state: absent
 
     - name: Create phpMyAdmin directory
       file:
         path: /usr/share/phpmyadmin
         state: directory
+        mode: '0755'
 
-    - name: Extract phpMyAdmin
+    - name: Extract phpMyAdmin archive
       unarchive:
         src: /tmp/phpmyadmin.tar.gz
-        dest: /usr/share/
+        dest: /usr/share/phpmyadmin
         remote_src: yes
         extra_opts: [--strip-components=1]
         creates: /usr/share/phpmyadmin/index.php
@@ -150,15 +157,8 @@
         state: directory
         mode: '0777'
 
-    - name: Set permissions for phpMyAdmin
+    - name: Set permissions for phpMyAdmin recursively
       file:
         path: /usr/share/phpmyadmin
-        state: directory
         mode: '0755'
         recurse: yes
-
-    - name: Link phpMyAdmin to /var/www/html
-      file:
-        src: /usr/share/phpmyadmin
-        dest: /var/www/html/phpmyadmin
-        state: link
