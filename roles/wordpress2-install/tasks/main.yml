@@ -164,7 +164,7 @@
     url: "{{ source_restore_url | default('https://tda4-gmc.tda-demo.com/wp-content/ai1wm-backups/tda4-gmc.tda-demo.com-20250512-034930-uw4gsh.wpress') }}"
     dest: "/home/{{ username }}/{{ site_domain }}/wp-content/ai1wm-backups/{{ backup_file_name | default('backup.wpress') }}"
     mode: '0644'
-  when: source_restore_url is defined and backup_file_name is defined
+  when: source_restore_url is defined
 
 - name: Set ownership of backup file
   become: true
@@ -174,7 +174,6 @@
     group: "{{ username }}"
     recurse: yes
     state: directory
-  when: backup_file_name is defined
 
 - name: Restore backup using All-in-One WP Migration
   become: true
@@ -184,4 +183,3 @@
     --path=/home/{{ username }}/{{ site_domain }}
   environment:
     PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
-  when: backup_file_name is defined

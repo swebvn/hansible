@@ -4,6 +4,7 @@
   vars:
     site_domain: "{{ domain }}" 
     source_restore_url: "{{ restore_url | default('https://tda4-gmc.tda-demo.com/wp-content/ai1wm-backups/tda4-gmc.tda-demo.com-20250512-034930-uw4gsh.wpress') }}"
+    backup_file_name: "{{ source_restore_url.split('/')[-1] }}"
     site_user: "{{ site_domain.split('.')[0] }}"
     username: "{{ site_user }}"
     site_pass: "{{ lookup('password', '/tmp/{{ site_user }}_passfile length=16 chars=ascii_letters') }}"
