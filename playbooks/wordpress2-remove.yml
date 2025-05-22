@@ -1,0 +1,71 @@
+- hosts: all
+  become: yes
+
+  vars:
+    site_domain: "{{ domain }}"
+    site_user: "{{ site_domain.split('.')[0] }}"
+    site_root: "/home/{{ site_user }}/{{ site_domain }}"
+    db_name: "{{ site_user }}"
+    db_user: "{{ site_user }}"
+    php_fpm_pool: "/etc/php/8.1/fpm/pool.d/{{ site_user }}.conf"
+    caddy_site_config: "/etc/caddy/sites/{{ site_domain }}.conf"
+
+  tasks:
+    - name: Stop PHP-FPM service (optional if per user config)
+      service:
+        name: php8.1-fpm
+        state: restarted
+
+    - name: Remove PHP-FPM pool config
+      file:
+        path: "{{ php_fpm_pool }}"
+        state: absent
+      notify: Restart PHP-FPM
+
+    - name: Remove user account and home directory
+      user:
+        name: "{{ site_user }}"
+        state: absent
+        remove: yes
+
+    - name: Drop MySQL database and user using shell
+      shell: |
+        mysql -u root <<EOF
+        DROP DATABASE IF EXISTS {{ db_name }};
+        DROP USER IF EXISTS '{{ db_user }}'@'localhost';
+        FLUSH PRIVILEGES;
+        EOF
+
+    - name: Remove site Caddy config
+      file:
+        path: "{{ caddy_site_config }}"
+        state: absent
+      notify: Reload Caddy
+
+    - name: Remove import line from Caddyfile
+      lineinfile:
+        path: /etc/caddy/Caddyfile
+        line: "import sites/{{ site_domain }}.conf"
+        state: absent
+
+  handlers:
+    - name: Restart PHP-FPM
+      service:
+        name: php8.1-fpm
+        state: restarted
+
+    - name: Reload Caddy
+      service:
+        name: caddy
+        state: reloaded
+
+##ssh-keygen
+###ssh-copy-id root@89.117.53.180
+
+##remove a domain
+#local test: ansible-playbook -i 89.117.53.180, playbooks/wordpress2-remove.yml -e "domain=testwp31.bkperfume.asia" -u root
+#server: ansible-playbook playbooks/wordpress2-remove.yml -i host.txt -e "domain=$DOMAIN" -u deploy --private-key /opt/key_deploy/id_rsa_deploy
+
+##create a new domain
+#local test: ansible-playbook -i 89.117.53.180, playbooks/wordpress2-install.yml -e "domain=testwp33.bkperfume.asia restore_url=''" -u root
+
