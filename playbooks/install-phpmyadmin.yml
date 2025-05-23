@@ -1,0 +1,35 @@
+##Only use this playbook if using caddy as web server
+- name: Update :80 block in Caddyfile
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Replace old :80 block with new one
+      replace:
+        path: /etc/caddy/Caddyfile
+        regexp: '(?s)^:80\s*{.*?^}'  # regex để tìm block :80 { ... }
+        replace: |
+          :80 {
+              root * /usr/share/
+              php_fastcgi unix//run/php/php8.1-fpm.sock
+              file_server
+
+              handle /phpmyadmin* {
+                  root * /usr/share/
+                  php_fastcgi unix//run/php/php8.1-fpm.sock
+                  file_server
+              }
+          }
+      notify: Reload caddy
+
+  handlers:
+    - name: Reload caddy
+      ansible.builtin.systemd:
+        name: caddy
+        state: reloaded
+
+
+
+#local test: ansible-playbook -i 89.117.53.180, playbooks/install-phpmyadmin.yml -u root
+
+#/var/www - if installing phpmyadin in /var/www
