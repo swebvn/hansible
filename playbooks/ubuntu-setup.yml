@@ -1,5 +1,5 @@
 ---
-- name: Setup PHP 8.1, MySQL 8, Caddy, WP CLI and FTP (vsftpd)
+- name: Setup PHP 8.1, MySQL 8, Caddy, WP CLI, Phpmyadmin and FTP (vsftpd)
   hosts: all
   become: yes
 
@@ -162,3 +162,27 @@
         path: /usr/share/phpmyadmin
         mode: '0755'
         recurse: yes
+
+    - name: Config phpmyadmin using :80 in Caddyfile
+      replace:
+        path: /etc/caddy/Caddyfile
+        regexp: '(?s)^:80\s*{.*?^}'  # regex để tìm block :80 { ... }
+        replace: |
+          :80 {
+              root * /usr/share/
+              php_fastcgi unix//run/php/php8.1-fpm.sock
+              file_server
+
+              handle /phpmyadmin* {
+                  root * /usr/share/
+                  php_fastcgi unix//run/php/php8.1-fpm.sock
+                  file_server
+              }
+          }
+      notify: Reload caddy
+  
+  handlers:
+    - name: Reload caddy
+      service:
+        name: caddy
+        state: reloaded
