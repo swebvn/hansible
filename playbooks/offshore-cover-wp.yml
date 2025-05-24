@@ -31,7 +31,4 @@
       register: config_created
 
     - name: Restart Caddy service if configuration was added
-      systemd:
-        name: caddy
-        state: restarted
-      when: config_created.changed
+      shell: service caddy restart
