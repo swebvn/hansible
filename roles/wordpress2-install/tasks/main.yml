@@ -14,6 +14,14 @@
   loop:
     - tmp
     - "{{ site_domain }}"
+    
+- name: Set permissions for tmp directory (allow web server access)
+  become: true
+  file:
+    path: "/home/{{ username }}/tmp"
+    owner: "{{ username }}"
+    group: www-data
+    mode: '0770'
 
 - name: Ensure PHP-FPM pool config exists
   template:
