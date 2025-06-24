@@ -19,6 +19,6 @@ pm.max_requests = 500
 
 chdir = /
 
-php_admin_value[open_basedir] = /home/{{ username }}/{{ site_domain }}:/tmp
+php_admin_value[open_basedir] = /home/{{ username }}/{{ site_domain }}:/home/{{ username }}/tmp:/tmp
 php_admin_value[upload_tmp_dir] = /home/{{ username }}/tmp
 php_admin_value[session.save_path] = /home/{{ username }}/tmp
