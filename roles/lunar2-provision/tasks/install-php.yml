@@ -45,8 +45,25 @@
     dest: /etc/php/8.2/fpm/pool.d
     force: true
 
+- name: configure PHP upload limits for CLI
+  copy:
+    src: files/99-upload-limits.ini
+    dest: /etc/php/8.2/cli/conf.d/99-upload-limits.ini
+    force: true
+
+- name: configure PHP upload limits for FPM
+  copy:
+    src: files/99-upload-limits.ini
+    dest: /etc/php/8.2/fpm/conf.d/99-upload-limits.ini
+    force: true
+
 - name: start php8.2-fpm
   systemd:
     name: php8.2-fpm
     state: started
     enabled: yes
+
+- name: restart php8.2-fpm to apply configuration changes
+  systemd:
+    name: php8.2-fpm
+    state: restarted

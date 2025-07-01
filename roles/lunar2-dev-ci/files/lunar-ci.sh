@@ -64,10 +64,10 @@ deploy_code() {
             composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
         fi
 
-        if git diff --name-only HEAD@{1} HEAD | grep -qE 'package\.json|pnpm-lock\.yaml|\.js|\.css|\.blade\.php'; then
+        # if git diff --name-only HEAD@{1} HEAD | grep -qE 'package\.json|pnpm-lock\.yaml|\.js|\.css|\.blade\.php'; then
             CI=1 pnpm install && pnpm run build
             php artisan tenants:cache-clear
-        fi
+        # fi
 
         php artisan hub:migrate
         php artisan tenants:migrate --force
