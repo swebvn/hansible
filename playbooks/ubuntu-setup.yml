@@ -9,6 +9,18 @@
       apt:
         update_cache: yes
 
+    - name: Check if Git is installed
+      command: git --version
+      register: git_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: Install Git if not present
+      apt:
+        name: git
+        state: present
+      when: git_check.rc != 0
+
     - name: Install PHP 8.1 and common extensions
       apt:
         name:

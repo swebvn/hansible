@@ -149,6 +149,35 @@
     recurse: yes
     state: directory
 
+#Initialize Git repository
+- name: Initialize Git repository in WordPress site directory
+  become: true
+  command: git init
+  args:
+    chdir: "/home/{{ username }}/{{ site_domain }}"
+  when: git_repo | default(true)
+
+- name: Copy static .gitignore to WordPress directory
+  become: true
+  copy:
+    src: wordpress.gitignore
+    dest: "/home/{{ username }}/{{ site_domain }}/.gitignore"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+  when: git_repo | default(true)
+
+- name: Initial Git commit
+  become: true
+  shell: |
+    git config user.email "admin@{{ site_domain }}"
+    git config user.name "{{ username | default('admin') }}"
+    git add .
+    git commit -m "Initial commit"
+  args:
+    chdir: "/home/{{ username }}/{{ site_domain }}"
+  when: git_repo | default(true)
+
 - name: Set password for FTP user
   become: true
   user:

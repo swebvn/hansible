@@ -1,0 +1,61 @@
+# WordPress specific files
+wp-config.php
+wp-content/advanced-cache.php
+wp-content/backup-db/
+wp-content/backups/
+wp-content/blogs.dir/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/uploads/
+wp-content/wflogs/
+wp-content/ai1wm-backups/
+
+# WordPress core files
+# (Đã bỏ qua ignore /wp-admin/ và /wp-includes/ để theo dõi thay đổi core)
+*.log
+
+# IDE and Editor folders
+*.sublime-workspace
+*.sublime-project
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Package manager directories
+node_modules/
+vendor/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Ignore build folders in themes and plugins
+wp-content/themes/*/dist/
+wp-content/themes/*/build/
+wp-content/plugins/*/dist/
+wp-content/plugins/*/build/
+
+# Ignore log, temp, backup files in themes/plugins
+wp-content/themes/*/*.log
+wp-content/themes/*/*.tmp
+wp-content/themes/*/*.bak
+wp-content/plugins/*/*.log
+wp-content/plugins/*/*.tmp
+wp-content/plugins/*/*.bak
