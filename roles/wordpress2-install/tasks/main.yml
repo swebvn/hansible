@@ -184,8 +184,10 @@
 - name: Initial Git commit
   become: true
   shell: |
-    git config user.email "admin@{{ site_domain }}"
-    git config user.name "{{ username | default('admin') }}"
+    cd /home/{{ username }}/{{ site_domain }}
+    git config --global --add safe.directory /home/{{ username }}/{{ site_domain }}
+    git config --local user.email "admin@{{ site_domain }}"
+    git config --local user.name "{{ username | default('admin') }}"
     git add .
     git commit -m "Initial commit"
   args:
