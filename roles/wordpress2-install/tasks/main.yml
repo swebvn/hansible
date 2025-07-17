@@ -150,6 +150,20 @@
     state: directory
 
 #Initialize Git repository
+- name: Check if Git is installed
+  become: true
+  command: git --version
+  register: git_check
+  ignore_errors: yes
+  changed_when: false
+
+- name: Install Git if not present
+  become: true
+  apt:
+    name: git
+    state: present
+  when: git_check.rc != 0
+  
 - name: Initialize Git repository in WordPress site directory
   become: true
   command: git init
