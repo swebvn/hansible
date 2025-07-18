@@ -126,7 +126,6 @@
   args:
     creates: "/home/{{ username }}/{{ site_domain }}/wp-content/plugins/all-in-one-wp-migration"
 
-
 - name: Set permissions for wp-content
   file:
     path: "/home/{{ username }}/{{ site_domain }}/wp-content"
@@ -156,6 +155,12 @@
   register: git_check
   ignore_errors: yes
   changed_when: false
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: yes
+  when: git_check.rc != 0
 
 - name: Install Git if not present
   become: true
