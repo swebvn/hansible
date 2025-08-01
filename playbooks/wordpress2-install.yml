@@ -12,6 +12,7 @@
     db_name: "{{ site_user }}"
     db_user: "{{ site_user }}"
     db_password: "{{ site_pass }}"
+    wp_admin: "s-admin"
 
   roles:
     - roles/wordpress2-install
@@ -22,6 +23,7 @@
         msg: |
           ✅ WordPress site deployed:
           🔸 Domain: {{ site_domain }}
+          🔸 Wp-admin: {{ wp_admin }}
           🔸 User: {{ site_user }}
           🔸 Password: {{ site_pass }}
           🔸 Site Root: {{ site_root }}

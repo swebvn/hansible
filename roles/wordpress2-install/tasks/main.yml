@@ -242,3 +242,4 @@
         PATH: "/usr/local/bin:{{ ansible_env.PATH }}"
 
   when: source_restore_url is defined and source_restore_url | length > 0
+  
