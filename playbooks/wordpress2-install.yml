@@ -5,7 +5,7 @@
     site_domain: "{{ domain }}" 
     source_restore_url: "{{ restore_url }}"
     backup_file_name: "{{ source_restore_url.split('/')[-1] }}"
-    site_user: "{{ site_domain.split('.')[0] | truncate(20, True, '') }}{{ lookup('password', '/dev/null length=3 chars=ascii_lowercase') }}"
+    site_user: "{{ site_domain.split('.')[0] | truncate(30, True, '') }}"
     username: "{{ site_user }}"
     site_pass: "{{ lookup('password', '/tmp/{{ site_user }}_passfile length=16 chars=ascii_letters') }}"
     site_root: "/home/{{ site_user }}/{{ site_domain }}"
