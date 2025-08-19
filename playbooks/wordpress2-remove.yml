@@ -3,7 +3,7 @@
 
   vars:
     site_domain: "{{ domain }}"
-    site_user: "{{ site_domain.split('.')[0] }}"
+    site_user: "{{ site_domain.split('.')[0] | truncate(30, True, '') }}"
     site_root: "/home/{{ site_user }}/{{ site_domain }}"
     db_name: "{{ site_user }}"
     db_user: "{{ site_user }}"
