@@ -1,0 +1,29 @@
+---
+- name: Update PHP upload limits configuration
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Configure PHP upload limits for CLI
+      copy:
+        src: ../roles/lunar2-provision/files/99-upload-limits.ini
+        dest: /etc/php/8.2/cli/conf.d/99-upload-limits.ini
+        force: true
+
+    - name: Configure PHP upload limits for FPM
+      copy:
+        src: ../roles/lunar2-provision/files/99-upload-limits.ini
+        dest: /etc/php/8.2/fpm/conf.d/99-upload-limits.ini
+        force: true
+
+    - name: Restart php8.2-fpm to apply configuration changes
+      systemd:
+        name: php8.2-fpm
+        state: restarted
+
+
+# Usage:
+# ansible-playbook -i <server_ip>, playbooks/update-php-upload-limits.yml -u root
+# Example:
+# ansible-playbook -i 89.117.53.180, playbooks/update-php-upload-limits.yml -u root
+
