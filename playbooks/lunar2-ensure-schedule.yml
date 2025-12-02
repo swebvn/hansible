@@ -6,17 +6,17 @@
   become_method: sudo
 
   tasks:
-    - name: Check if lucommerce directory exists
+    - name: Check if current symlink exists (new structure)
       stat:
-        path: /home/deploy/lucommerce
-      register: lucommerce_dir
+        path: /home/deploy/current
+      register: current_link
 
-    - name: Setup the schedule
+    - name: Setup the schedule (new symlink structure)
       cron:
         name: "lucommerce-schedule"
         minute: "*/1"
         user: deploy
-        job: "cd /home/deploy/lucommerce && php artisan schedule:run >> /dev/null 2>&1"
+        job: "cd /home/deploy/current && php artisan schedule:run >> /dev/null 2>&1"
         state: present
-      when: lucommerce_dir.stat.exists
+      when: current_link.stat.exists
 

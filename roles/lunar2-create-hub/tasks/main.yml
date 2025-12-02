@@ -6,30 +6,75 @@
 - name: Chmod deploy folder
   shell: chmod 755 /home/deploy
 
-- name: Create lucommerce directory
+# =========================================================================
+# Create symlink-based directory structure
+# =========================================================================
+- name: Create releases directory
   file:
-    path: "/home/deploy/lucommerce"
+    path: "/home/deploy/releases"
     state: directory
+    owner: deploy
+    group: deploy
     mode: '0755'
 
-- name: Clone the repository
+- name: Create shared directory
+  file:
+    path: "/home/deploy/shared"
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: '0755'
+
+- name: Create shared subdirectories
+  file:
+    path: "/home/deploy/shared/{{ item }}"
+    state: directory
+    owner: deploy
+    group: deploy
+    mode: '0755'
+  loop:
+    - storage
+    - storage/app
+    - storage/app/public
+    - storage/framework
+    - storage/framework/cache
+    - storage/framework/sessions
+    - storage/framework/views
+    - storage/logs
+    - database
+
+# =========================================================================
+# Create first release
+# =========================================================================
+- name: Generate release name
+  shell: date +%Y%m%d-%H%M%S
+  register: release_name
+
+- name: Set release directory path
+  set_fact:
+    release_dir: "/home/deploy/releases/{{ release_name.stdout }}"
+
+- name: Clone the repository to release directory
   git:
     repo: 'git@github.com:swebvn/lucommerce.git'
-    dest: "/home/deploy/lucommerce"
+    dest: "{{ release_dir }}"
     version: 'main'
     force: true
     depth: 1
   environment:
     GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
 
-- name: Setup .env file
-  shell: cp .env.example .env
+# =========================================================================
+# Setup shared .env file
+# =========================================================================
+- name: Copy .env.example to shared directory
+  shell: cp {{ release_dir }}/.env.example /home/deploy/shared/.env
   args:
-    chdir: "/home/deploy/lucommerce"
+    creates: /home/deploy/shared/.env
 
-- name: Configure the .env file
+- name: Configure the shared .env file
   lineinfile:
-    path: /home/deploy/lucommerce/.env
+    path: /home/deploy/shared/.env
     regexp: "^{{ item.key }}="
     line: "{{ item.key }}={{ item.value }}"
   with_items:
@@ -41,20 +86,84 @@
     - { key: "BUNNY_PULL_ZONE", value: "{{ bunny_pull_zone }}" }
     - { key: "BUNNY_REGION", value: "{{ bunny_region }}" }
 
+# =========================================================================
+# Create symlinks in release
+# =========================================================================
+- name: Remove .env from release (will be symlinked)
+  file:
+    path: "{{ release_dir }}/.env"
+    state: absent
+
+- name: Remove storage from release (will be symlinked)
+  file:
+    path: "{{ release_dir }}/storage"
+    state: absent
+
+- name: Remove database from release (will be symlinked)
+  file:
+    path: "{{ release_dir }}/database"
+    state: absent
+
+- name: Create .env symlink in release
+  file:
+    src: /home/deploy/shared/.env
+    dest: "{{ release_dir }}/.env"
+    state: link
+    owner: deploy
+    group: deploy
+
+- name: Create storage symlink in release
+  file:
+    src: /home/deploy/shared/storage
+    dest: "{{ release_dir }}/storage"
+    state: link
+    owner: deploy
+    group: deploy
+
+- name: Create database symlink in release
+  file:
+    src: /home/deploy/shared/database
+    dest: "{{ release_dir }}/database"
+    state: link
+    owner: deploy
+    group: deploy
+
+- name: Create public/storage symlink
+  file:
+    src: /home/deploy/shared/storage/app/public
+    dest: "{{ release_dir }}/public/storage"
+    state: link
+    owner: deploy
+    group: deploy
+
+# =========================================================================
+# Build the release
+# =========================================================================
 - name: Basic Setup
   args:
-    chdir: "/home/deploy/lucommerce"
+    chdir: "{{ release_dir }}"
   shell: |
     composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
     php artisan key:generate
     php artisan hub:install
-    php artisan storage:link
     pnpm install && pnpm run build
 
-- name: Chown the directory
+- name: Chown the directories
   shell: |
-    chown -R deploy:deploy /home/deploy/lucommerce
+    chown -R deploy:deploy /home/deploy/releases
+    chown -R deploy:deploy /home/deploy/shared
   ignore_errors: true
+
+# =========================================================================
+# Atomic switch - create current symlink
+# =========================================================================
+- name: Create current symlink
+  file:
+    src: "{{ release_dir }}"
+    dest: /home/deploy/current
+    state: link
+    owner: deploy
+    group: deploy
 
 - name: Setup systemd for Horizon
   template:
@@ -88,6 +197,6 @@
   cron:
     name: "lucommerce-schedule"
     minute: "*/1"
-    job: "cd /home/deploy/lucommerce && php artisan schedule:run >> /dev/null 2>&1"
+    job: "cd /home/deploy/current && php artisan schedule:run >> /dev/null 2>&1"
     user: deploy
     state: present

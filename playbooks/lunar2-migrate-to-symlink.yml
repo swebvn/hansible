@@ -1,0 +1,291 @@
+---
+# Migration playbook: Convert existing lucommerce directory to symlink-based releases
+# This is a ONE-TIME migration for existing servers
+#
+# Usage:
+#   ansible-playbook playbooks/lunar2-migrate-to-symlink.yml -i inventories/lunar.ini
+#
+# Test on dev first:
+#   ansible-playbook playbooks/lunar2-migrate-to-symlink.yml -i inventories/lunar.ini --limit lunardev
+
+- name: Migrate Lunar to symlink-based zero-downtime deployment
+  hosts: all
+  become: true
+  become_method: sudo
+
+  vars:
+    deploy_user: deploy
+    deploy_home: /home/deploy
+    releases_dir: /home/deploy/releases
+    shared_dir: /home/deploy/shared
+    current_link: /home/deploy/current
+    old_lucommerce_dir: /home/deploy/lucommerce
+
+  tasks:
+    # =========================================================================
+    # PHASE 0: Pre-flight checks
+    # =========================================================================
+    - name: Check if already migrated (current symlink exists)
+      stat:
+        path: "{{ current_link }}"
+      register: current_symlink
+
+    - name: Check if old lucommerce directory exists
+      stat:
+        path: "{{ old_lucommerce_dir }}"
+      register: old_dir
+
+    - name: Fail if already migrated
+      fail:
+        msg: "Server already migrated to symlink-based deployment. Skipping."
+      when: current_symlink.stat.exists and current_symlink.stat.islnk
+
+    - name: Fail if old directory doesn't exist
+      fail:
+        msg: "Old lucommerce directory not found. Nothing to migrate."
+      when: not old_dir.stat.exists
+
+    # =========================================================================
+    # PHASE 1: Create new directory structure
+    # =========================================================================
+    - name: Create releases directory
+      file:
+        path: "{{ releases_dir }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+
+    - name: Create shared directory
+      file:
+        path: "{{ shared_dir }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+
+    - name: Create shared subdirectories
+      file:
+        path: "{{ shared_dir }}/{{ item }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+        mode: '0755'
+      loop:
+        - storage
+        - storage/app
+        - storage/app/public
+        - storage/framework
+        - storage/framework/cache
+        - storage/framework/sessions
+        - storage/framework/views
+        - storage/logs
+        - database
+
+    # =========================================================================
+    # PHASE 2: Move shared data to shared directory
+    # =========================================================================
+    - name: Move .env to shared directory
+      shell: |
+        if [ -f "{{ old_lucommerce_dir }}/.env" ]; then
+          cp "{{ old_lucommerce_dir }}/.env" "{{ shared_dir }}/.env"
+          chown {{ deploy_user }}:{{ deploy_user }} "{{ shared_dir }}/.env"
+        fi
+      args:
+        creates: "{{ shared_dir }}/.env"
+
+    - name: Move storage contents to shared directory
+      shell: |
+        if [ -d "{{ old_lucommerce_dir }}/storage" ]; then
+          cp -a "{{ old_lucommerce_dir }}/storage/." "{{ shared_dir }}/storage/"
+          chown -R {{ deploy_user }}:{{ deploy_user }} "{{ shared_dir }}/storage"
+        fi
+
+    - name: Move database files to shared directory
+      shell: |
+        if [ -d "{{ old_lucommerce_dir }}/database" ]; then
+          # Copy SQLite files and any other database files
+          find "{{ old_lucommerce_dir }}/database" -name "*.sqlite" -exec cp {} "{{ shared_dir }}/database/" \;
+          chown -R {{ deploy_user }}:{{ deploy_user }} "{{ shared_dir }}/database"
+        fi
+
+    # =========================================================================
+    # PHASE 3: Convert existing code to first release
+    # =========================================================================
+    - name: Generate release name
+      shell: date +%Y%m%d-%H%M%S
+      register: release_name
+
+    - name: Set release directory path
+      set_fact:
+        release_dir: "{{ releases_dir }}/{{ release_name.stdout }}"
+
+    - name: Move old lucommerce to releases directory
+      shell: |
+        mv "{{ old_lucommerce_dir }}" "{{ release_dir }}"
+
+    # =========================================================================
+    # PHASE 4: Create symlinks in release
+    # =========================================================================
+    - name: Remove old .env from release (will be symlinked)
+      file:
+        path: "{{ release_dir }}/.env"
+        state: absent
+
+    - name: Remove old storage from release (will be symlinked)
+      file:
+        path: "{{ release_dir }}/storage"
+        state: absent
+
+    - name: Remove old database from release (will be symlinked)
+      file:
+        path: "{{ release_dir }}/database"
+        state: absent
+
+    - name: Create .env symlink in release
+      file:
+        src: "{{ shared_dir }}/.env"
+        dest: "{{ release_dir }}/.env"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    - name: Create storage symlink in release
+      file:
+        src: "{{ shared_dir }}/storage"
+        dest: "{{ release_dir }}/storage"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    - name: Create database symlink in release
+      file:
+        src: "{{ shared_dir }}/database"
+        dest: "{{ release_dir }}/database"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    - name: Remove old public/storage symlink
+      file:
+        path: "{{ release_dir }}/public/storage"
+        state: absent
+
+    - name: Create public/storage symlink to shared storage
+      file:
+        src: "{{ shared_dir }}/storage/app/public"
+        dest: "{{ release_dir }}/public/storage"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    # =========================================================================
+    # PHASE 5: Atomic switch - create current symlink
+    # =========================================================================
+    - name: Create current symlink (atomic switch)
+      file:
+        src: "{{ release_dir }}"
+        dest: "{{ current_link }}"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    - name: Run composer dump-autoload to fix autoloader paths
+      shell: |
+        cd {{ current_link }}
+        sudo -u {{ deploy_user }} composer dump-autoload --no-interaction
+
+    # =========================================================================
+    # PHASE 6: Update services configuration
+    # =========================================================================
+    - name: Update Caddyfile root path to use current symlink
+      replace:
+        path: /etc/caddy/Caddyfile
+        regexp: 'root \* /home/deploy/lucommerce/public'
+        replace: 'root * /home/deploy/current/public'
+
+    - name: Update Horizon service to use current symlink
+      replace:
+        path: /etc/systemd/system/lucommerce-horizon.service
+        regexp: '/home/deploy/lucommerce/artisan'
+        replace: '/home/deploy/current/artisan'
+      notify:
+        - Reload systemd
+        - Restart Horizon
+
+    - name: Update cron job to use current symlink
+      replace:
+        path: /var/spool/cron/crontabs/deploy
+        regexp: 'cd /home/deploy/lucommerce &&'
+        replace: 'cd /home/deploy/current &&'
+      ignore_errors: true
+
+    # =========================================================================
+    # PHASE 7: Reload services
+    # =========================================================================
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Reload Caddy
+      service:
+        name: caddy
+        state: reloaded
+
+    - name: Reload PHP-FPM gracefully
+      service:
+        name: php8.2-fpm
+        state: reloaded
+
+    - name: Restart Horizon
+      service:
+        name: lucommerce-horizon
+        state: restarted
+
+    # =========================================================================
+    # PHASE 8: Verify migration
+    # =========================================================================
+    - name: Verify current symlink exists
+      stat:
+        path: "{{ current_link }}"
+      register: verify_current
+
+    - name: Verify shared .env exists
+      stat:
+        path: "{{ shared_dir }}/.env"
+      register: verify_env
+
+    - name: Verify storage symlink works
+      stat:
+        path: "{{ current_link }}/storage"
+      register: verify_storage
+
+    - name: Migration verification
+      debug:
+        msg: |
+          ✅ Migration complete for {{ inventory_hostname }}!
+
+          Directory structure:
+          - Current symlink: {{ current_link }} → {{ release_dir }}
+          - Shared directory: {{ shared_dir }}
+          - Releases directory: {{ releases_dir }}
+
+          Verification:
+          - Current symlink exists: {{ verify_current.stat.exists }}
+          - Shared .env exists: {{ verify_env.stat.exists }}
+          - Storage symlink works: {{ verify_storage.stat.exists }}
+
+  handlers:
+    - name: Reload Caddy
+      service:
+        name: caddy
+        state: reloaded
+
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart Horizon
+      service:
+        name: lucommerce-horizon
+        state: restarted

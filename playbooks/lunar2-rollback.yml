@@ -1,0 +1,91 @@
+---
+# Rollback playbook: Instantly rollback to previous release
+# This is for emergency rollback situations
+#
+# Usage:
+#   ansible-playbook playbooks/lunar2-rollback.yml -i inventories/lunar.ini
+#
+# Rollback specific server:
+#   ansible-playbook playbooks/lunar2-rollback.yml -i inventories/lunar.ini --limit lunar1
+
+- name: Rollback Lunar to previous release
+  hosts: all
+  become: true
+  become_method: sudo
+
+  vars:
+    deploy_user: deploy
+    releases_dir: /home/deploy/releases
+    current_link: /home/deploy/current
+
+  tasks:
+    - name: Check if releases directory exists
+      stat:
+        path: "{{ releases_dir }}"
+      register: releases_check
+
+    - name: Fail if releases directory doesn't exist
+      fail:
+        msg: "Releases directory not found. Server not using symlink-based deployment."
+      when: not releases_check.stat.exists
+
+    - name: Get list of releases sorted by date (newest first)
+      shell: ls -1t {{ releases_dir }}
+      register: releases_list
+
+    - name: Fail if not enough releases for rollback
+      fail:
+        msg: "Not enough releases for rollback. Only {{ releases_list.stdout_lines | length }} release(s) found."
+      when: releases_list.stdout_lines | length < 2
+
+    - name: Get current release
+      shell: readlink -f {{ current_link }}
+      register: current_release
+
+    - name: Get previous release
+      set_fact:
+        previous_release: "{{ releases_dir }}/{{ releases_list.stdout_lines[1] }}"
+
+    - name: Display rollback info
+      debug:
+        msg: |
+          🔄 Rolling back...
+          Current: {{ current_release.stdout }}
+          Target:  {{ previous_release }}
+
+    - name: Switch to previous release (atomic)
+      file:
+        src: "{{ previous_release }}"
+        dest: "{{ current_link }}"
+        state: link
+        owner: "{{ deploy_user }}"
+        group: "{{ deploy_user }}"
+
+    - name: Reload PHP-FPM gracefully
+      service:
+        name: php8.2-fpm
+        state: reloaded
+
+    - name: Terminate Horizon (will auto-restart via systemd)
+      shell: |
+        cd {{ current_link }}
+        sudo -u {{ deploy_user }} php artisan horizon:terminate
+      ignore_errors: true
+
+    - name: Clear response cache
+      shell: |
+        cd {{ current_link }}
+        sudo -u {{ deploy_user }} php artisan responsecache:clear
+      ignore_errors: true
+
+    - name: Verify rollback
+      shell: readlink -f {{ current_link }}
+      register: new_current
+
+    - name: Rollback complete
+      debug:
+        msg: |
+          ✅ Rollback complete for {{ inventory_hostname }}!
+
+          Previous: {{ current_release.stdout }}
+          Current:  {{ new_current.stdout }}
