@@ -134,7 +134,6 @@ warmup_caches() {
         php artisan config:cache
         php artisan event:cache
         php artisan view:cache
-        php artisan route:cache
         php artisan filament:cache-components
         php artisan icons:cache
     "
