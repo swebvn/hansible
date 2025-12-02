@@ -161,6 +161,7 @@ reload_services() {
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
         php artisan responsecache:clear
+        php artisan route:clear
         php artisan horizon:terminate
     "
 
