@@ -100,8 +100,6 @@
           cp -a "{{ old_lucommerce_dir }}/storage/." "{{ shared_dir }}/storage/"
           chown -R {{ deploy_user }}:{{ deploy_user }} "{{ shared_dir }}/storage"
         fi
-      args:
-        warn: false
 
     - name: Move database files to shared directory
       shell: |
@@ -110,8 +108,6 @@
           find "{{ old_lucommerce_dir }}/database" -name "*.sqlite" -exec cp {} "{{ shared_dir }}/database/" \;
           chown -R {{ deploy_user }}:{{ deploy_user }} "{{ shared_dir }}/database"
         fi
-      args:
-        warn: false
 
     # =========================================================================
     # PHASE 3: Convert existing code to first release
@@ -127,8 +123,6 @@
     - name: Move old lucommerce to releases directory
       shell: |
         mv "{{ old_lucommerce_dir }}" "{{ release_dir }}"
-      args:
-        warn: false
 
     # =========================================================================
     # PHASE 4: Create symlinks in release

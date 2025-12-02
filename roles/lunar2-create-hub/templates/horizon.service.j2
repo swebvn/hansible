@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=deploy
 Group=deploy
-ExecStart=/usr/bin/php /home/deploy/lucommerce/artisan horizon
+ExecStart=/usr/bin/php /home/deploy/current/artisan horizon
 Restart=always
 RestartSec=3
 StandardOutput=syslog

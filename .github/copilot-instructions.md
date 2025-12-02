@@ -15,6 +15,49 @@ This is an Ansible automation repository for managing WordPress and Laravel (Luc
 | **WordPress** | WordPress site management | `wordpress2-install.yml`, `install-wp-plugin.yml` |
 | **Offshore** | Proxy/CDN servers | `offshore-provision.yml` |
 
+## Zero-Downtime Deployment (Lunar)
+
+### Directory Structure
+Lunar uses symlink-based atomic releases for zero-downtime deployments:
+```
+/home/deploy/
+├── current -> releases/20241202-143052/   # Symlink to active release
+├── releases/                               # Release versions (keep 5)
+│   ├── 20241202-143052/
+│   └── 20241202-120015/
+└── shared/                                 # Persistent data across releases
+    ├── .env
+    ├── storage/
+    └── database/                           # SQLite tenant databases
+```
+
+### Deployment Flow
+1. Clone fresh code to `/home/deploy/releases/<timestamp>/`
+2. Symlink shared directories (`.env`, `storage/`, `database/`)
+3. Run `composer install` + `pnpm build` (isolated, no downtime)
+4. Run migrations **before** switch
+5. Atomic symlink switch: `ln -sfn releases/<new> current`
+6. Graceful PHP-FPM reload: `systemctl reload php8.2-fpm`
+7. Cleanup old releases (keep 5)
+
+### Key Commands
+```bash
+# Migrate existing server to symlink structure (one-time)
+ansible-playbook playbooks/lunar2-migrate-to-symlink.yml -i inventories/lunar.ini --limit lunardev
+
+# Deploy (uses zero-downtime automatically)
+ansible-playbook playbooks/lunar2-ci.yml -i inventories/lunar.ini
+
+# Instant rollback to previous release
+ansible-playbook playbooks/lunar2-rollback.yml -i inventories/lunar.ini
+```
+
+### Critical Rules
+- **Always use `systemctl reload`** not `restart` for PHP-FPM
+- **Migrations must be backward-compatible** (run before symlink switch)
+- **Shared directories** (`.env`, `storage/`, `database/`) persist across releases
+- **Never modify files in `/home/deploy/current/`** directly
+
 ### Playbook Structure
 - Use `become: true` with `become_method: sudo` for privilege escalation
 - Reference roles by name (role directory = role name)
@@ -36,14 +79,14 @@ roles/<role-name>/
 - Environment lookups: `"{{ lookup('env', 'BUNNY_API_KEY') }}"`
 
 ### Template Patterns
-- Caddy configs: `templates/Caddyfile.j2`, `templates/caddy-site.conf.j2`
-- Systemd services: `templates/horizon.service.j2`
+- Caddy configs: `templates/Caddyfile.j2` (use `root * /home/deploy/current/public`)
+- Systemd services: `templates/horizon.service.j2` (use `/home/deploy/current/artisan`)
 - PHP-FPM pools: `templates/php-fpm-pool.conf.j2`
 
 ## Tech Stack
 - **Web Server**: Caddy (with PHP-FPM sockets at `/run/php/php8.x-fpm.sock`)
 - **PHP**: 8.1 (WordPress), 8.2 (Lunar)
-- **Database**: MySQL 8
+- **Database**: MySQL 8 (hub) + SQLite (tenants)
 - **Queue**: Redis + Laravel Horizon
 - **Node**: pnpm for package management
 - **CDN**: BunnyCDN (storage zones, pull zones)
@@ -51,8 +94,9 @@ roles/<role-name>/
 ## Important Files
 - `ansible.cfg`: Local development config
 - `ansible.cfg.prod`: Production config (use `make setup-prod`)
-- `roles/lunar2-ci/files/lunar-ci.sh`: CI deployment script with git-based conditional builds
+- `roles/lunar2-ci/files/lunar-ci.sh`: Zero-downtime CI deployment script
 - `roles/lunar2-create-hub/vars/main.yml`: BunnyCDN configuration
+- `playbooks/lunar2-migrate-to-symlink.yml`: One-time migration to symlink structure
 
 ## Common Patterns
 
@@ -63,4 +107,4 @@ make role role=<role-name>  # Creates role scaffold via ansible-galaxy
 
 ### Deploying to specific hosts
 The `lunardev` host is excluded from production CI playbooks. Use `lunar2-dev-ci.yml` for dev deployments.
-Never run any ansible command directly because this is prohibited in this project. All server in the project is production server.
+Never run any ansible command directly because this is prohibited in this project. All servers in the project are production servers.
