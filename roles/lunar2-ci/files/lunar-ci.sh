@@ -119,7 +119,7 @@ run_migrations() {
     echo "Running database migrations..."
     su - "${DEPLOY_USER}" -c "
         cd ${release_dir}
-        php artisan hub:migrate --force
+        php artisan hub:migrate
         php artisan tenants:migrate --force
     "
 }
