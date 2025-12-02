@@ -155,11 +155,10 @@ reload_services() {
     # Graceful PHP-FPM reload (workers finish current requests)
     systemctl reload php8.2-fpm
 
-    # Clear and rebuild caches after PHP-FPM reload to avoid view race condition
+    # Clear caches after PHP-FPM reload
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
         php artisan responsecache:clear
-        php artisan view:cache
         php artisan route:clear
         php artisan horizon:terminate
     "
