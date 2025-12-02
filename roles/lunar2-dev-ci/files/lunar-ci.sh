@@ -158,8 +158,8 @@ reload_services() {
     # Clear and rebuild caches after PHP-FPM reload to avoid view race condition
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
-        php artisan view:cache
         php artisan responsecache:clear
+        php artisan view:cache
         php artisan route:clear
         php artisan horizon:terminate
     "
