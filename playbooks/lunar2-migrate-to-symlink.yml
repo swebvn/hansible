@@ -190,6 +190,11 @@
         owner: "{{ deploy_user }}"
         group: "{{ deploy_user }}"
 
+    - name: Run composer dump-autoload to fix autoloader paths
+      shell: |
+        cd {{ current_link }}
+        sudo -u {{ deploy_user }} composer dump-autoload --no-interaction
+
     # =========================================================================
     # PHASE 6: Update services configuration
     # =========================================================================
