@@ -124,7 +124,7 @@ run_migrations() {
     "
 }
 
-# Warm up caches in new release
+# Warm up caches in new release (views cached after PHP-FPM reload to avoid race condition)
 warmup_caches() {
     local release_dir=$1
 
@@ -133,7 +133,6 @@ warmup_caches() {
         cd ${release_dir}
         php artisan config:cache
         php artisan event:cache
-        php artisan view:cache
         php artisan filament:cache-components
         php artisan icons:cache
     "
@@ -156,9 +155,10 @@ reload_services() {
     # Graceful PHP-FPM reload (workers finish current requests)
     systemctl reload php8.2-fpm
 
-    # Clear response cache after switch
+    # Clear and rebuild caches after PHP-FPM reload to avoid view race condition
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
+        php artisan view:cache
         php artisan responsecache:clear
         php artisan route:clear
         php artisan horizon:terminate
