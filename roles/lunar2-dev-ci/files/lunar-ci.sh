@@ -162,7 +162,7 @@ reload_services() {
     "
 
     # Graceful PHP-FPM reload (workers finish current requests)
-    systemctl reload php8.2-fpm
+    systemctl restart php8.2-fpm
 
     echo "Services reloaded."
 }
