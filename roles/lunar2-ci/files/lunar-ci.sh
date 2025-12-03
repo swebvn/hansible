@@ -107,7 +107,7 @@ build_release() {
         # Always install composer dependencies for new release
         composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
 
-        # Always build frontend assets for new release
+        # Always build frontend assets
         CI=1 pnpm install && pnpm run build
     "
 }
