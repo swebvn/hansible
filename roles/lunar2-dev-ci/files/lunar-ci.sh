@@ -18,7 +18,7 @@ SHARED_DIR="${USER_HOME}/shared"
 CURRENT_LINK="${USER_HOME}/current"
 KEEP_RELEASES=5
 REPO_URL="git@github.com:swebvn/lucommerce.git"
-BRANCH="dev"
+BRANCH="main"
 
 # Setup SSH directory and permissions
 setup_ssh_dir() {
