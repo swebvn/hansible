@@ -153,7 +153,7 @@ reload_services() {
     echo "Reloading services gracefully..."
 
 
-    # Clear caches after PHP-FPM reload
+    # Cache views, clear route cache, and clear response cache after switch
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
         php artisan responsecache:clear
