@@ -78,22 +78,30 @@ link_shared() {
 
     # Remove existing directories/files that will be symlinked
     rm -rf "${release_dir}/.env"
-    rm -rf "${release_dir}/storage"
     rm -rf "${release_dir}/database"
 
     # Create symlinks to shared directories
     ln -s "${SHARED_DIR}/.env" "${release_dir}/.env"
-    ln -s "${SHARED_DIR}/storage" "${release_dir}/storage"
     ln -s "${SHARED_DIR}/database" "${release_dir}/database"
+
+    # Only symlink storage/app (user uploads), keep logs and framework per-release
+    rm -rf "${release_dir}/storage/app"
+    ln -s "${SHARED_DIR}/storage/app" "${release_dir}/storage/app"
 
     # Create public/storage symlink for Laravel's storage:link
     rm -rf "${release_dir}/public/storage"
     ln -s "${SHARED_DIR}/storage/app/public" "${release_dir}/public/storage"
 
+    # Ensure storage directories exist and are writable
+    mkdir -p "${release_dir}/storage/logs"
+    mkdir -p "${release_dir}/storage/framework/cache"
+    mkdir -p "${release_dir}/storage/framework/sessions"
+    mkdir -p "${release_dir}/storage/framework/views"
+
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/.env"
-    chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/storage"
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/database"
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/public/storage"
+    chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/storage"
 }
 
 # Install dependencies and build assets
