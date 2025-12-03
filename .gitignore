@@ -1,3 +1,5 @@
+/.idea
+
 ansible.cfg
 hosts.local
 *.local
