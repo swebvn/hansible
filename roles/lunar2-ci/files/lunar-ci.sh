@@ -76,12 +76,16 @@ link_shared() {
 
     echo "Linking shared directories..."
 
-    # Remove existing directories/files that will be symlinked
+    # Symlink .env
     rm -rf "${release_dir}/.env"
-    rm -rf "${release_dir}/database"
-
-    # Create symlinks to shared directories
     ln -s "${SHARED_DIR}/.env" "${release_dir}/.env"
+
+    # Sync database code from release to shared (migrations, seeders, factories, etc.)
+    # SQLite files in shared are preserved, code files are updated
+    rsync -a --exclude='*.sqlite' "${release_dir}/database/" "${SHARED_DIR}/database/"
+
+    # Symlink entire database folder (SQLite files + updated code)
+    rm -rf "${release_dir}/database"
     ln -s "${SHARED_DIR}/database" "${release_dir}/database"
 
     # Only symlink storage/app (user uploads), keep logs and framework per-release
@@ -102,6 +106,7 @@ link_shared() {
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/database"
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/public/storage"
     chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/storage"
+    chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${SHARED_DIR}/database"
 }
 
 # Install dependencies and build assets
