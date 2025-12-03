@@ -163,14 +163,14 @@ reload_services() {
     # Clear caches after PHP-FPM reload
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
-        # php artisan view:cache
-        php artisan responsecache:clear
-        php artisan route:clear
+        php artisan view:cache
+        # php artisan responsecache:clear
+        # php artisan route:clear
         php artisan horizon:terminate
     "
 
     # Graceful PHP-FPM reload (workers finish current requests)
-    systemctl restart php8.2-fpm
+    systemctl reload php8.2-fpm
 
     echo "Services reloaded."
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Lunar CI Zero-Downtime Deployment Script
+# Lunar CI Zero-Downtime Deployment Script (DEV)
 # Uses symlink-based atomic releases for zero-downtime deployments
 
 set -euo pipefail
@@ -18,7 +18,7 @@ SHARED_DIR="${USER_HOME}/shared"
 CURRENT_LINK="${USER_HOME}/current"
 KEEP_RELEASES=5
 REPO_URL="git@github.com:swebvn/lucommerce.git"
-BRANCH="main"
+BRANCH="dev"
 
 # Setup SSH directory and permissions
 setup_ssh_dir() {
@@ -115,7 +115,7 @@ build_release() {
         # Always install composer dependencies for new release
         composer install --no-dev --optimize-autoloader --no-ansi --no-interaction
 
-        # Always build frontend assets
+        # Always build frontend assets for new release
         CI=1 pnpm install && pnpm run build
     "
 }
@@ -160,18 +160,17 @@ switch_release() {
 reload_services() {
     echo "Reloading services gracefully..."
 
-
-    # Cache views, clear route cache, and clear response cache after switch
+    # Clear caches after PHP-FPM reload
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
-        php artisan responsecache:clear
         php artisan view:cache
-        php artisan route:clear
+        # php artisan responsecache:clear
+        # php artisan route:clear
         php artisan horizon:terminate
     "
 
     # Graceful PHP-FPM reload (workers finish current requests)
-    systemctl restart php8.2-fpm
+    systemctl reload php8.2-fpm
 
     echo "Services reloaded."
 }
@@ -229,7 +228,7 @@ rollback() {
 # Main deployment function
 deploy() {
     local domain=$(get_domain)
-    echo "Starting zero-downtime deployment for ${domain}..."
+    echo "Starting zero-downtime deployment (DEV) for ${domain}..."
 
     # Verify shared directory exists
     if [ ! -d "${SHARED_DIR}" ]; then
@@ -267,7 +266,7 @@ deploy() {
     # Send success notification
     send_notification "${domain}" "deployed"
 
-    echo "✅ Zero-downtime deployment complete!"
+    echo "✅ Zero-downtime deployment (DEV) complete!"
 }
 
 # Main entry point
