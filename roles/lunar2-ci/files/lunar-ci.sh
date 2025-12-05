@@ -88,24 +88,18 @@ link_shared() {
     rm -rf "${release_dir}/database"
     ln -s "${SHARED_DIR}/database" "${release_dir}/database"
 
-    # Only symlink storage/app (user uploads), keep logs and framework per-release
-    rm -rf "${release_dir}/storage/app"
-    ln -s "${SHARED_DIR}/storage/app" "${release_dir}/storage/app"
+    # Symlink entire storage folder (sessions persist, caches rebuilt on deploy)
+    rm -rf "${release_dir}/storage"
+    ln -s "${SHARED_DIR}/storage" "${release_dir}/storage"
 
     # Create public/storage symlink for Laravel's storage:link
     rm -rf "${release_dir}/public/storage"
     ln -s "${SHARED_DIR}/storage/app/public" "${release_dir}/public/storage"
 
-    # Ensure storage directories exist and are writable
-    mkdir -p "${release_dir}/storage/logs"
-    mkdir -p "${release_dir}/storage/framework/cache"
-    mkdir -p "${release_dir}/storage/framework/sessions"
-    mkdir -p "${release_dir}/storage/framework/views"
-
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/.env"
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/database"
+    chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/storage"
     chown -h "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/public/storage"
-    chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${release_dir}/storage"
     chown -R "${DEPLOY_USER}:${DEPLOY_USER}" "${SHARED_DIR}/database"
 }
 
@@ -169,6 +163,7 @@ reload_services() {
     su - "${DEPLOY_USER}" -c "
         cd ${CURRENT_LINK}
         php artisan view:cache
+        php artisan tenants:clear-responsecache
         php artisan horizon:terminate
     "
 
