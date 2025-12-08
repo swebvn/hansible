@@ -10,7 +10,7 @@
   shell: chmod a+x /tmp/lunar-dev-ci.sh
 
 - name: Run script
-  shell: "./lunar-ci.sh"
+  shell: "./lunar-dev-ci.sh"
   args:
     chdir: "/tmp"
   register: console
