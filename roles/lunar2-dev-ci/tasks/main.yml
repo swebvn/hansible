@@ -4,7 +4,7 @@
     src: files/{{ item }}
     dest: /tmp/
   with_items:
-    - lunar-ci.sh
+    - lunar-dev-ci.sh
 
 - name: Make sure execute pers bash file
   shell: chmod a+x /tmp/lunar-dev-ci.sh
