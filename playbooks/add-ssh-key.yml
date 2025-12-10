@@ -15,17 +15,11 @@
           - key_file | length > 0
         fail_msg: "Please specify key_file variable. Example: -e 'key_file=keys/q.pub'"
 
-    - name: Check if key file exists locally
-      local_action:
-        module: stat
-        path: "{{ key_file }}"
-      register: key_file_stat
+    - name: Read public key from file
+      set_fact:
+        public_key_content: "{{ lookup('file', playbook_dir + '/../' + key_file) }}"
+      delegate_to: localhost
       become: false
-
-    - name: Fail if key file does not exist
-      fail:
-        msg: "Key file '{{ key_file }}' not found"
-      when: not key_file_stat.stat.exists
 
     - name: Ensure deploy user exists
       user:
@@ -41,12 +35,6 @@
         owner: deploy
         group: deploy
         mode: 0700
-
-    - name: Read public key from file
-      set_fact:
-        public_key_content: "{{ lookup('file', key_file) }}"
-      delegate_to: localhost
-      become: false
 
     - name: Add SSH public key to authorized_keys
       authorized_key:
