@@ -1,0 +1,44 @@
+---
+- name: "Remove SSH public key from deploy user"
+  hosts: all
+  become: true
+  become_method: sudo
+
+  vars:
+    key_file: ""  # Path to public key file to remove (e.g., keys/q.pub)
+
+  tasks:
+    - name: Validate key_file variable
+      assert:
+        that:
+          - key_file is defined
+          - key_file | length > 0
+        fail_msg: "Please specify key_file variable. Example: -e 'key_file=keys/q.pub'"
+
+    - name: Check if key file exists locally
+      local_action:
+        module: stat
+        path: "{{ key_file }}"
+      register: key_file_stat
+      become: false
+
+    - name: Fail if key file does not exist
+      fail:
+        msg: "Key file '{{ key_file }}' not found"
+      when: not key_file_stat.stat.exists
+
+    - name: Read public key from file
+      set_fact:
+        public_key_content: "{{ lookup('file', key_file) }}"
+      delegate_to: localhost
+      become: false
+
+    - name: Remove SSH public key from authorized_keys
+      authorized_key:
+        user: deploy
+        key: "{{ public_key_content }}"
+        state: absent
+
+    - name: Display confirmation message
+      debug:
+        msg: "SSH key from '{{ key_file }}' has been removed from deploy user on {{ inventory_hostname }}"

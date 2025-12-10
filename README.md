@@ -1,5 +1,18 @@
 # hansible
 
+## SSH Key Management
+### Add SSH public key to deploy user
+Add a public key to the `deploy` user's authorized_keys file. Keys are typically stored in the `keys/` folder.
+```bash
+ansible-playbook playbooks/add-ssh-key.yml -e "key_file=keys/q.pub" -i inventories/lunar.ini
+```
+
+### Remove SSH public key from deploy user
+Remove a public key from the `deploy` user's authorized_keys file.
+```bash
+ansible-playbook playbooks/remove-ssh-key.yml -e "key_file=keys/q.pub" -i inventories/lunar.ini
+```
+
 ## Install wordpress plugin
 This playbook also active the plugin after install it.
 Copy the plugin zip file in `/roles/install-wp-plugin/files/` folder.
