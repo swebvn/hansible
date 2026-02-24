@@ -28,14 +28,6 @@
         shell: /bin/bash
         createhome: yes
 
-    - name: Ensure .ssh directory exists for deploy user
-      file:
-        path: /home/deploy/.ssh
-        state: directory
-        owner: deploy
-        group: deploy
-        mode: 0700
-
     - name: Add SSH public key to authorized_keys
       authorized_key:
         user: deploy
